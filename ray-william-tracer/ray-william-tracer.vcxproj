@@ -150,6 +150,7 @@
     <ClInclude Include="src\sphere.h" />
     <ClInclude Include="src\utility.h" />
     <ClInclude Include="src\vec3.h" />
+    <ClInclude Include="src\triangle.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
