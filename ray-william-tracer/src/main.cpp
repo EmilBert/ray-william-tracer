@@ -12,6 +12,7 @@
 #include"utility.h"
 #include"camera.h"
 #include"material.h"
+#include "quad.h"
 
 // Depth is the number of times our ray has bounced
 Color ray_color(const Ray& ray, const Hittable& world, int depth) {
@@ -65,7 +66,8 @@ int main() {
     //world.add(make_shared<Sphere>(Point3(-1.0,    0.0, -1.0),   0.5, lambertian)); // Negative radiance on dielectric material spheres gives a "hollow glass ball" effect, because of the direction the normals point
     //world.add(make_shared<Sphere>(Point3( 1.0,    0.0, -1.0),   0.5, metal));
 
-	world.add(make_shared<Triangle>(Point3(0,0,-2), Vec3(2,0.5,-2), Point3(-2, 2, -2), lambertian));
+	//world.add(make_shared<Triangle>(Point3(0,0,-2), Vec3(2,0.5,-2), Point3(-2, 2, -2), lambertian));
+	world.add(make_shared<Quad>(Point3(0, 0, -2), Vec3(0, 2, -2), Point3(2, 0, -2), Point3(2, 2, -2), lambertian));
 
 	std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 
