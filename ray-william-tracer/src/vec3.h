@@ -3,6 +3,8 @@
 #include <cmath>
 #include <iostream>
 
+#include"utility.h"
+
 class Vec3 {
 public:
 	// constructors
@@ -141,6 +143,8 @@ Vec3 random_in_hemisphere(const Vec3& normal) {
 inline Vec3 unit_vector(Vec3 v) {
 	return v / v.length();
 }
+
+inline Vec3 normalize(Vec3 v) { return unit_vector(v); }
 
 Vec3 random_unit_vector() {
     return unit_vector(random_in_unit_sphere());
