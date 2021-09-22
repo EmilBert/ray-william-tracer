@@ -11,6 +11,21 @@ public:
     ) const = 0;
 };
 
+class Unlit : public Material {
+public:
+    Unlit(const Color& c) : color(c) {}
+
+    virtual bool scatter(
+        const Ray& r_in, const hit_record& rec, Color& attenuation, Ray& scattered
+    ) const override {
+        attenuation = color;
+        return true;
+    }
+
+public:
+    Color color;
+};
+
 class Metal : public Material {
 public:
     Metal(const Color& a, double f) : albedo(a), fuzz(f < 1 ? f : 1) {}
