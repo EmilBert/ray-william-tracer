@@ -14,8 +14,13 @@
 #include"material.h"
 #include "quad.h"
 
+// Gradient calculations
+	// glm::dvec3 unit_direction = glm::normalize(ray.direction());
+	// double t = 0.5 * (unit_direction.y + 1.0);
+	// glm::dvec3 bg = (1.0 - t) * glm::dvec3(1.0, 1.0, 1.0) + t * glm::dvec3(0.5, 0.7, 1.0);
+
 // Depth is the number of times our ray has bounced
-glm::dvec3 ray_color(const Ray& ray, const Hittable& world, int depth) {
+glm::dvec3 ray_color(const Ray& ray,glm::dvec3 bg, const Hittable& world, int depth) {
 	
 	hit_record rec;
 	// We have exceeded the maximum number of bounce limits, no more light is generated!
@@ -27,26 +32,23 @@ glm::dvec3 ray_color(const Ray& ray, const Hittable& world, int depth) {
 	if (world.hit(ray, 0.001, infinity, rec)) { // Check for hit and record some data
 		Ray scattered;
 		glm::dvec3 attenuation;
-		if (rec.mat_ptr->scatter(ray, rec, attenuation, scattered)) {
-			return attenuation * ray_color(scattered, world, depth-1);
-			//return attenuation;
-		}
-		return glm::dvec3(0,0,0);
-	}
-	
-	glm::dvec3 unit_direction = glm::normalize(ray.direction());
-	double t = 0.5 * (unit_direction.y + 1.0);
-	return (1.0 - t) * glm::dvec3(1.0, 1.0, 1.0) + t * glm::dvec3(0.5, 0.7, 1.0);
+		glm::dvec3 emitted = rec.mat_ptr->emitted(rec.p);
 
+		if (!rec.mat_ptr->scatter(ray, rec, attenuation, scattered))
+			return emitted;
+
+		return emitted + attenuation * ray_color(scattered, bg, world, depth - 1);
+	}
+	return bg;
 }
 
 int main() {
 	// Creating our camera
 	Camera cam;
-
+	glm::dvec3 bg = glm::dvec3(0.1, 0.1, 0.1);
 	// Some screen constants
     const auto aspect_ratio = 16.0 / 9.0;
-    const int image_width = 400;
+    const int image_width = 450;
     const int image_height = static_cast<int>(image_width / aspect_ratio);
     const int samples_per_pixel = 100;
 	const int max_depth = 50;
@@ -55,6 +57,7 @@ int main() {
 	HittableList world;
 	auto material_ground = make_shared<Lambertian>(glm::dvec3(0.8, 0.8, 0.0));
     auto lambertian = make_shared<Lambertian>(glm::dvec3(0.1, 0.2, 0.4));
+	auto diffuse_light = make_shared<Diffuse_light>(glm::dvec3(1, 1, 1));
     //auto material_left   = make_shared<Metal>(Color(0.8, 0.8, 0.8), 0.3);
 	//auto material_center = make_shared<Dielectric>(1.5);
 	auto dielectric   = make_shared<Dielectric>(1.5);
@@ -62,7 +65,7 @@ int main() {
 	auto unlit = make_shared<Unlit>(glm::dvec3(1.0, 0.0, 0.0));
 
     world.add(make_shared<Sphere>(glm::dvec3( 0.0, -100.5, -1.0), 100.0, material_ground));
-    //world.add(make_shared<Sphere>(glm::dvec3( 0.0,    0.0, -1.0),   -0.4, dielectric));
+    world.add(make_shared<Sphere>(glm::dvec3( 0.0,    0.0, -1.0),   -0.4, diffuse_light));
     world.add(make_shared<Sphere>(glm::dvec3(-1.0,    0.0, -1.0),   0.5, lambertian)); // Negative radiance on dielectric material spheres gives a "hollow glass ball" effect, because of the direction the normals point
     world.add(make_shared<Sphere>(glm::dvec3( 1.0,    0.0, -1.0),   0.5, metal));
 
@@ -85,7 +88,7 @@ int main() {
 				double u = (i + random_double()) / (image_width-1);
 				double v = (j + random_double()) / (image_height-1);
 				Ray r = cam.get_ray(u,v);
-				pixel_color += ray_color(r, world, max_depth);
+				pixel_color += ray_color(r, bg, world, max_depth);
 			}
 
 			// Write the final, super-sampled color
