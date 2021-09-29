@@ -12,7 +12,6 @@
 #include"hittable_list.h"
 #include"camera.h"
 #include"material.h"
-#include "quad.h"
 
 // Depth is the number of times our ray has bounced
 glm::dvec3 ray_color(const Ray& ray, const Hittable& world, int depth) {
@@ -24,7 +23,7 @@ glm::dvec3 ray_color(const Ray& ray, const Hittable& world, int depth) {
 	}
 
 	// 0.001 is a thing we do to avoid shadow acne!
-	if (world.hit(ray, 0.001, infinity, rec)) { // Check for hit and record some data
+	if (world.hit(ray, 0.01, infinity, rec)) { // Check for hit and record some data
 		Ray scattered;
 		glm::dvec3 attenuation;
 		if (rec.mat_ptr->scatter(ray, rec, attenuation, scattered)) {
@@ -40,15 +39,23 @@ glm::dvec3 ray_color(const Ray& ray, const Hittable& world, int depth) {
 
 }
 
+void addTriangle(glm::dvec3 position, std::shared_ptr<Material> mat, HittableList& world_ref) {
+	TriangleData someData = {
+		position + glm::dvec3(0,0,-2), position + glm::dvec3(2,0.5,-2), position + glm::dvec3(-2, 2, -2)
+	};
+
+	world_ref.add(make_shared<Triangle>(someData, mat));
+}
+
 int main() {
 	// Creating our camera
 	Camera cam;
 
 	// Some screen constants
     const auto aspect_ratio = 16.0 / 9.0;
-    const int image_width = 400;
+    const int image_width = 650;
     const int image_height = static_cast<int>(image_width / aspect_ratio);
-    const int samples_per_pixel = 100;
+    const int samples_per_pixel = 60;
 	const int max_depth = 50;
 
 	// Creating and setting up our world
@@ -61,17 +68,32 @@ int main() {
     auto metal  = make_shared<Metal>(glm::dvec3(0.8, 0.6, 0.2), 1.0);
 	auto unlit = make_shared<Unlit>(glm::dvec3(1.0, 0.0, 0.0));
 
-    world.add(make_shared<Sphere>(glm::dvec3( 0.0, -100.5, -1.0), 100.0, material_ground));
+    //world.add(make_shared<Sphere>(glm::dvec3( 0.0, -100.5, -1.0), 100.0, material_ground));
     //world.add(make_shared<Sphere>(glm::dvec3( 0.0,    0.0, -1.0),   -0.4, dielectric));
-    world.add(make_shared<Sphere>(glm::dvec3(-1.0,    0.0, -1.0),   0.5, lambertian)); // Negative radiance on dielectric material spheres gives a "hollow glass ball" effect, because of the direction the normals point
-    world.add(make_shared<Sphere>(glm::dvec3( 1.0,    0.0, -1.0),   0.5, metal));
-
-	TriangleData someData = {
-		glm::dvec3(0,0,-2), glm::dvec3(2,0.5,-2), glm::dvec3(-2, 2, -2)
-	};
+    //world.add(make_shared<Sphere>(glm::dvec3(-1.0,    0.0, -1.0),   0.5, lambertian)); // Negative radiance on dielectric material spheres gives a "hollow glass ball" effect, because of the direction the normals point
+    //world.add(make_shared<Sphere>(glm::dvec3( 1.0,    0.0, -1.0),   0.5, metal));
 
 	//world.add(make_shared<Triangle>(someData, glm::dvec3(0,0,0), 0, lambertian));
 	//world.add(make_shared<Quad>(glm::dvec3(0, 0, -2), glm::dvec3(0, 2, -2), glm::dvec3(2, 0, -2), glm::dvec3(2, 2, -2), lambertian));
+
+	glm::dvec3 position = { 0, -2, -3 };
+
+	glm::dvec3 bottomLeft = { -2, 0, 0 };
+	glm::dvec3 bottomRight = { 2,0, 0 };
+	glm::dvec3 topLeft = { -2, 4, 0 };
+	glm::dvec3 topRight = { 2,4, 0 };
+
+	TriangleData someData = {
+		position + bottomLeft, position + bottomRight, position + topLeft
+	};
+	TriangleData someData2 = {
+		position + bottomRight, position + topRight, position + topLeft
+	};
+
+	//glm::dvec3 rotation = { 0, 3.24 / 2.0, 0 };
+
+	//world.add(make_shared<Triangle>(someData.v0, someData.v1, someData.v2, lambertian)),
+	//world.add(make_shared<Triangle>(someData2.v0, someData2.v1, someData2.v2, rotation, lambertian));
 
 	std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 
