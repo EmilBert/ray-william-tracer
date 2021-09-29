@@ -1,20 +1,43 @@
 #pragma once
 
 #include"hittable.h"
-#include"vec3.h"
 #include"material.h"
+#include<glm/vec3.hpp>
+#include<glm/geometric.hpp>
+#include<glm/gtx/rotate_vector.hpp>
+
+// Stores 3 vertices, used as a storage bucket-ish
+struct TriangleData {
+	glm::dvec3 v0, v1, v2;
+};
 
 class Triangle : public Hittable {
 public:
-	Triangle(){}
-	Triangle(Point3 p0, Point3 p1, Point3 p2, shared_ptr<Material> m) : v0(p0), v1(p1), v2(p2), mat_ptr(m) {}
+	// Constructors
+	Triangle() {}
+	Triangle(glm::dvec3 p0, glm::dvec3 p1, glm::dvec3 p2, shared_ptr<Material> m) : v0(p0), v1(p1), v2(p2), mat_ptr(m) {
+		normal = glm::normalize(glm::cross(v1 - v0, v2 - v0));
+	}
+	Triangle(TriangleData data, glm::dvec3 rotation_vec, double angle_in_radians, shared_ptr<Material> m);
 
+	// Virtual implementation of hit
 	virtual bool hit(const Ray& ray, double t_min, double t_max, hit_record& rec) const override;
 
 private:
-	Point3 v0, v1, v2; // Triangle vertices
+	glm::dvec3 v0, v1, v2; 
+	glm::dvec3 normal;
 	shared_ptr<Material> mat_ptr;
 };
+
+inline Triangle::Triangle(TriangleData data, glm::dvec3 rotation_vec, double angle_in_radians, shared_ptr<Material> m)
+{
+	v0 = glm::rotate(data.v0, angle_in_radians, rotation_vec);
+	v1 = glm::rotate(data.v1, angle_in_radians, rotation_vec);
+	v2 = glm::rotate(data.v2, angle_in_radians, rotation_vec);
+	mat_ptr = m;
+
+	normal = glm::normalize(glm::cross(v1 - v0, v2 - v0));
+}
 
 // Algorithm used: Möller Trumbore method
 bool Triangle::hit(const Ray& ray, double t_min, double t_max, hit_record& rec) const
@@ -22,10 +45,10 @@ bool Triangle::hit(const Ray& ray, double t_min, double t_max, hit_record& rec) 
 	// Do some math to check if incoming ray intersects triangle between t_min and t_max 
 	// then place some data into rec
 	
-	Vec3 v0v1 = v1 - v0;
-	Vec3 v0v2 = v2 - v0;
-	Vec3 pvec = cross(ray.dir, v0v2);
-	double det = dot(v0v1, pvec);
+	glm::dvec3 v0v1 = v1 - v0;
+	glm::dvec3 v0v2 = v2 - v0;
+	glm::dvec3 pvec = glm::cross(ray.dir, v0v2);
+	double det = glm::dot(v0v1, pvec);
 
 	constexpr double eps = 0.00001;
 
@@ -37,23 +60,22 @@ bool Triangle::hit(const Ray& ray, double t_min, double t_max, hit_record& rec) 
 	
 	float invDet = 1 / det;
 
-	Vec3 tvec = ray.orig - v0;
-	double u = dot(tvec, pvec) * invDet;
+	glm::dvec3 tvec = ray.orig - v0;
+	double u = glm::dot(tvec, pvec) * invDet;
 	if (u < 0 || u > 1) return false;
 
-	Vec3 qvec = cross(tvec, v0v1);
-	double v = dot(ray.dir, qvec) * invDet;
+	glm::dvec3 qvec = cross(tvec, v0v1);
+	double v = glm::dot(ray.dir, qvec) * invDet;
 	if (v < 0 | u + v > 1) return false;
 
-	double t = dot(v0v2, qvec) * invDet;
+	double t = glm::dot(v0v2, qvec) * invDet;
 
 	if (t > t_max || t < t_min) return false;
 
 	// check if t is between t_min & t_max
 	// record into rec
 	// Ok collision has happend
-	Vec3 N = normalize(cross(v1 - v0, v2 - v0));
-	rec.set_face_normal(ray, N);
+	rec.set_face_normal(ray, normal);
 	rec.p = ray.direction() * t;
 	rec.t = t;
 	rec.mat_ptr = mat_ptr;

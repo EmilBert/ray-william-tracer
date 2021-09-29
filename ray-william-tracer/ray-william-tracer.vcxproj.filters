@@ -20,9 +20,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\vec3.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\color.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -48,6 +45,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\triangle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\quad.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
