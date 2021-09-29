@@ -7,36 +7,36 @@
 #include"triangle.h"
 
 // Others
+#include"utility.h"
 #include"color.h"
 #include"hittable_list.h"
-#include"utility.h"
 #include"camera.h"
 #include"material.h"
 #include "quad.h"
 
 // Depth is the number of times our ray has bounced
-Color ray_color(const Ray& ray, const Hittable& world, int depth) {
+glm::dvec3 ray_color(const Ray& ray, const Hittable& world, int depth) {
 	
 	hit_record rec;
 	// We have exceeded the maximum number of bounce limits, no more light is generated!
 	if(depth <= 0){
-		return Color(0,0,0);
+		return glm::dvec3(0,0,0);
 	}
 
 	// 0.001 is a thing we do to avoid shadow acne!
 	if (world.hit(ray, 0.001, infinity, rec)) { // Check for hit and record some data
 		Ray scattered;
-		Color attenuation;
+		glm::dvec3 attenuation;
 		if (rec.mat_ptr->scatter(ray, rec, attenuation, scattered)) {
 			return attenuation * ray_color(scattered, world, depth-1);
 			//return attenuation;
 		}
-		return Color(0,0,0);
+		return glm::dvec3(0,0,0);
 	}
 	
-	Vec3 unit_direction = unit_vector(ray.direction());
-	double t = 0.5 * (unit_direction.y() + 1.0);
-	return (1.0 - t) * Color(1.0, 1.0, 1.0) + t * Color(0.5, 0.7, 1.0);
+	glm::dvec3 unit_direction = glm::normalize(ray.direction());
+	double t = 0.5 * (unit_direction.y + 1.0);
+	return (1.0 - t) * glm::dvec3(1.0, 1.0, 1.0) + t * glm::dvec3(0.5, 0.7, 1.0);
 
 }
 
@@ -53,21 +53,25 @@ int main() {
 
 	// Creating and setting up our world
 	HittableList world;
-	auto material_ground = make_shared<Lambertian>(Color(0.8, 0.8, 0.0));
-    auto lambertian = make_shared<Lambertian>(Color(0.1, 0.2, 0.4));
+	auto material_ground = make_shared<Lambertian>(glm::dvec3(0.8, 0.8, 0.0));
+    auto lambertian = make_shared<Lambertian>(glm::dvec3(0.1, 0.2, 0.4));
     //auto material_left   = make_shared<Metal>(Color(0.8, 0.8, 0.8), 0.3);
 	//auto material_center = make_shared<Dielectric>(1.5);
 	auto dielectric   = make_shared<Dielectric>(1.5);
-    auto metal  = make_shared<Metal>(Color(0.8, 0.6, 0.2), 1.0);
-	auto unlit = make_shared<Unlit>(Color(1.0, 0.0, 0.0));
+    auto metal  = make_shared<Metal>(glm::dvec3(0.8, 0.6, 0.2), 1.0);
+	auto unlit = make_shared<Unlit>(glm::dvec3(1.0, 0.0, 0.0));
 
-    world.add(make_shared<Sphere>(Point3( 0.0, -100.5, -1.0), 100.0, material_ground));
-    world.add(make_shared<Sphere>(Point3( 0.0,    0.0, -1.0),   -0.4, dielectric));
-    //world.add(make_shared<Sphere>(Point3(-1.0,    0.0, -1.0),   0.5, lambertian)); // Negative radiance on dielectric material spheres gives a "hollow glass ball" effect, because of the direction the normals point
-    //world.add(make_shared<Sphere>(Point3( 1.0,    0.0, -1.0),   0.5, metal));
+    world.add(make_shared<Sphere>(glm::dvec3( 0.0, -100.5, -1.0), 100.0, material_ground));
+    //world.add(make_shared<Sphere>(glm::dvec3( 0.0,    0.0, -1.0),   -0.4, dielectric));
+    world.add(make_shared<Sphere>(glm::dvec3(-1.0,    0.0, -1.0),   0.5, lambertian)); // Negative radiance on dielectric material spheres gives a "hollow glass ball" effect, because of the direction the normals point
+    world.add(make_shared<Sphere>(glm::dvec3( 1.0,    0.0, -1.0),   0.5, metal));
 
-	//world.add(make_shared<Triangle>(Point3(0,0,-2), Vec3(2,0.5,-2), Point3(-2, 2, -2), lambertian));
-	world.add(make_shared<Quad>(Point3(0, 0, -2), Vec3(0, 2, -2), Point3(2, 0, -2), Point3(2, 2, -2), lambertian));
+	TriangleData someData = {
+		glm::dvec3(0,0,-2), glm::dvec3(2,0.5,-2), glm::dvec3(-2, 2, -2)
+	};
+
+	//world.add(make_shared<Triangle>(someData, glm::dvec3(0,0,0), 0, lambertian));
+	//world.add(make_shared<Quad>(glm::dvec3(0, 0, -2), glm::dvec3(0, 2, -2), glm::dvec3(2, 0, -2), glm::dvec3(2, 2, -2), lambertian));
 
 	std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 
@@ -75,7 +79,7 @@ int main() {
 		std::cerr << "\rScanlines remaining: " << j << ' ' << std::flush;
 		for (int i = 0; i < image_width; ++i) {
 
-			Color pixel_color(0,0,0);
+			glm::dvec3 pixel_color(0,0,0);
 			for(int s = 0; s < samples_per_pixel; ++s){
 				// Super-sampling for better aliasing, use random
 				double u = (i + random_double()) / (image_width-1);

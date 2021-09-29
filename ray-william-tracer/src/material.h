@@ -2,59 +2,63 @@
 
 #include "utility.h"
 #include "hittable.h"
-#include "Vec3.h"
+
+#include<glm/geometric.hpp>
 
 class Material {
 public:
     virtual bool scatter(
-        const Ray& ray_in, const hit_record& rec, Color& attenuation, Ray& scattered
+        const Ray& ray_in, const hit_record& rec, glm::dvec3& attenuation, Ray& scattered
     ) const = 0;
 };
 
 class Unlit : public Material {
 public:
-    Unlit(const Color& c) : color(c) {}
+    Unlit(const glm::dvec3& c) : color(c) {}
 
     virtual bool scatter(
-        const Ray& r_in, const hit_record& rec, Color& attenuation, Ray& scattered
+        const Ray& r_in, const hit_record& rec, glm::dvec3& attenuation, Ray& scattered
     ) const override {
         attenuation = color;
         return true;
     }
 
 public:
-    Color color;
+    glm::dvec3 color;
 };
 
 class Metal : public Material {
 public:
-    Metal(const Color& a, double f) : albedo(a), fuzz(f < 1 ? f : 1) {}
+    Metal(const glm::dvec3& a, double f) : albedo(a), fuzz(f < 1 ? f : 1) {}
 
     virtual bool scatter(
-        const Ray& r_in, const hit_record& rec, Color& attenuation, Ray& scattered
+        const Ray& r_in, const hit_record& rec, glm::dvec3& attenuation, Ray& scattered
         ) const override {
-        Vec3 refelected = reflect(unit_vector(r_in.direction()), rec.normal);
+        glm::dvec3 refelected = glm::reflect(glm::normalize(r_in.direction()), rec.normal);
         scattered = Ray(rec.p, refelected + fuzz*random_in_unit_sphere());
         attenuation = albedo;
-        return (dot(scattered.direction(), rec.normal) > 0);
+        return (glm::dot(scattered.direction(), rec.normal) > 0);
     }
 
 public:
-    Color albedo;
+    glm::dvec3 albedo;
     double fuzz;
 };
 
 class Lambertian :  public Material {
 public:
-    Lambertian(const Color& a) : albedo(a) {}
+    Lambertian(const glm::dvec3& a) : albedo(a) {}
 
     virtual bool scatter(
-        const Ray& ray_in, const hit_record& rec, Color& attentuation, Ray& scattered
+        const Ray& ray_in, const hit_record& rec, glm::dvec3& attentuation, Ray& scattered
     ) const override {
+
+        // TODO: Russian roulette implementation (see lecture 10 notes)
+
         auto scatter_direction = rec.normal + random_unit_vector();
         
         //Catch degenrate scatter direction
-        if(scatter_direction.near_zero())
+        if(isVectorNearZero(scatter_direction))
             scatter_direction = rec.normal;
         
         scattered = Ray(rec.p, scatter_direction);
@@ -63,7 +67,7 @@ public:
     }
 
 public:
-    Color albedo;
+    glm::dvec3 albedo;
 };
 
 class Dielectric : public Material {
@@ -71,23 +75,23 @@ public:
     Dielectric(double index_of_refraction) : refraction_index(index_of_refraction) {}
 
     virtual bool scatter(
-        const Ray& ray_in, const hit_record& rec, Color& attentuation, Ray& scattered
+        const Ray& ray_in, const hit_record& rec, glm::dvec3& attentuation, Ray& scattered
     ) const override {
-        attentuation = Color(1.0, 1.0, 1.0);
+        attentuation = glm::dvec3(1.0, 1.0, 1.0);
         double refraction_ratio = rec.front_face ? (1.0 / refraction_index) : refraction_index;
-        Vec3 unit_direction = unit_vector(ray_in.direction());
-        Vec3 refracted = refract(unit_direction, rec.normal, refraction_ratio);
+        glm::dvec3 unit_direction = glm::normalize(ray_in.direction());
+        glm::dvec3 refracted = glm::refract(unit_direction, rec.normal, refraction_ratio);
 
         double cos_theta = fmin(dot(-unit_direction, rec.normal), 1.0);
         double sin_theta = sqrt(1.0 - cos_theta * cos_theta); // Trig-ettan 
         bool cannot_refract = refraction_ratio * sin_theta > 1.0;
-        Vec3 direction;
+        glm::dvec3 direction;
 
         // This is some weird hack to simulate how glass looks at an angle
         if (cannot_refract || reflectance(cos_theta, refraction_ratio) > random_double())
-            direction = reflect(unit_direction, rec.normal);
+            direction = glm::reflect(unit_direction, rec.normal);
         else
-            direction = refract(unit_direction, rec.normal, refraction_ratio);
+            direction = glm::refract(unit_direction, rec.normal, refraction_ratio);
 
         scattered = Ray(rec.p, refracted);
         return true;

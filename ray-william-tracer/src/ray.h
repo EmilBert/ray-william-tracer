@@ -1,6 +1,6 @@
 #pragma once
 
-#include "vec3.h"
+#include<glm/vec3.hpp>
 
 class Ray {
 	/* Ray::at Graphic
@@ -13,14 +13,14 @@ class Ray {
 
 public:
 	Ray() {}
-	Ray(const Point3& origin, const Vec3& direction) : orig(origin), dir(direction) {}
-	Point3 origin() const { return orig; }
-	Vec3 direction() const { return dir; }
-	Point3 at(double t) const {
+	Ray(const glm::vec3& origin, const glm::vec3& direction) : orig(origin), dir(direction) {}
+	glm::dvec3 origin() const { return orig; }
+	glm::dvec3 direction() const { return dir; }
+	glm::dvec3 at(double t) const {
 		return orig + t * dir;
 	}
 
 public:
-	Point3 orig;
-	Vec3 dir;
+	glm::dvec3 orig;
+	glm::dvec3 dir;
 };

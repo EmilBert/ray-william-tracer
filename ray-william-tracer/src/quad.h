@@ -1,15 +1,16 @@
 #pragma once
 
 #include"hittable.h"
-#include"vec3.h"
 #include"material.h"
 #include"triangle.h"
+
+#include<glm/vec3.hpp>
 
 class Quad : public Hittable {
 public:
 	Quad() {}
 	//Quad(Point3 p0, Point3 p1, Point3 p2, Point3 p3, shared_ptr<Material> m) : v0(p0), v1(p1), v2(p2), v3(p3), t0(p0, p2, p1, m), t1(p3, p1, p2, m), mat_ptr(m) {}
-	Quad(Point3 p0, Point3 p1, Point3 p2, Point3 p3, shared_ptr<Material> m) : t0(p0, p2, p1, m), t1(p3, p1, p2, m), mat_ptr(m) {}
+	Quad(glm::dvec3 p0, glm::dvec3 p1, glm::dvec3 p2, glm::dvec3 p3, shared_ptr<Material> m) : t0(p0, p2, p1, m), t1(p3, p1, p2, m), mat_ptr(m) {}
 	//Quad(Point3 origin, double width, double height, double xRot, double yRot, shared_ptr<Material> m) {}
 
 	virtual bool hit(const Ray& ray, double t_min, double t_max, hit_record& rec) const override;
@@ -26,7 +27,7 @@ private:
 		v2 ------ v3
 	*/
 	Triangle t0, t1;
-	Point3 v0, v1, v2, v3; // Triangle vertices
+	glm::dvec3 v0, v1, v2, v3; // Triangle vertices
 	shared_ptr<Material> mat_ptr;
 };
 

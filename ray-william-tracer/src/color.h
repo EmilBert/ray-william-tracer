@@ -1,12 +1,12 @@
 #pragma once
 
-#include"vec3.h"
+#include<glm/vec3.hpp>
 #include<iostream>
 
-void write_color(std::ostream& out, Color pixel_color, int samples_per_pixel) {
-	double r = pixel_color.x();
-	double g = pixel_color.y();
-	double b = pixel_color.z();
+void write_color(std::ostream& out, glm::dvec3 pixel_color, int samples_per_pixel) {
+	double r = pixel_color.x;
+	double g = pixel_color.y;
+	double b = pixel_color.z;
 
 	// Divide the color by the number of samples.
 	// Applying "gamma 2", gamma correction through squaring r,g,b components i.e raising it to 1/2
