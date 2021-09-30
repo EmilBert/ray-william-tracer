@@ -70,6 +70,62 @@ void addQuad(const glm::dvec3& bottomLeft, const glm::dvec3& bottomRight, const 
 	world_ref.add(make_shared<Triangle>(someData2, rotation, m));
 }
 
+// Inward facing normals
+void addRoom(const glm::dvec3& origin, double radius, shared_ptr<Material> m, HittableList& world_ref) {
+
+	double x1 = origin.x - radius;
+	double x2 = origin.x + radius;
+	double y1 = origin.y - radius;
+	double y2 = origin.y + radius;
+	double z1 = origin.z - radius;
+	double z2 = origin.z + radius;
+
+	glm::dvec3 v0{ x1, y1, z1 };
+	glm::dvec3 v1{ x1, y2, z1 };
+	glm::dvec3 v2{ x2, y2, z1 };
+	glm::dvec3 v3{ x2, y1, z1 };
+	glm::dvec3 v4{ x1, y1, z2 };
+	glm::dvec3 v5{ x1, y2, z2 };
+	glm::dvec3 v6{ x2, y2, z2 };
+	glm::dvec3 v7{ x2, y1, z2 };
+	
+	addQuad(v4,v0,v5,v1, m, world_ref);
+	addQuad(v0,v3,v1,v2, m, world_ref);
+	addQuad(v3,v7,v2,v6, m, world_ref);
+	addQuad(v7,v4,v6,v5, m, world_ref);
+	addQuad(v4,v7,v0,v3, m, world_ref);
+	addQuad(v1,v2,v5,v6, m, world_ref);
+}
+
+// Outward facing normals
+void addCube(const glm::dvec3& origin, double radius, shared_ptr<Material> m, HittableList& world_ref) {
+
+	double x1 = origin.x - radius;
+	double x2 = origin.x + radius;
+	double y1 = origin.y - radius;
+	double y2 = origin.y + radius;
+	double z1 = origin.z - radius;
+	double z2 = origin.z + radius;
+
+	glm::dvec3 v0{ x1, y1, z1 };
+	glm::dvec3 v1{ x1, y2, z1 };
+	glm::dvec3 v2{ x2, y2, z1 };
+	glm::dvec3 v3{ x2, y1, z1 };
+	glm::dvec3 v4{ x1, y1, z2 };
+	glm::dvec3 v5{ x1, y2, z2 };
+	glm::dvec3 v6{ x2, y2, z2 };
+	glm::dvec3 v7{ x2, y1, z2 };
+
+	addQuad(v0, v4, v1, v5, m, world_ref);
+	addQuad(v3, v0, v2, v1, m, world_ref);
+	addQuad(v7, v3, v6, v2, m, world_ref);
+	addQuad(v4, v7, v5, v6, m, world_ref);
+	addQuad(v7, v4, v3, v0, m, world_ref);
+	addQuad(v2, v1, v6, v5, m, world_ref);
+}
+
+
+
 int main() {
 	// Creating our camera
 	Camera cam;
@@ -108,14 +164,19 @@ int main() {
 	glm::dvec3 bottomRight = { -1, -1, -3 };
 	glm::dvec3 topLeft = { -2, 1, -1 };
 	glm::dvec3 topRight = { -1, 1, -3 };
-	addQuad(bottomLeft, bottomRight, topLeft, topRight, lambertian, world);
+	//addQuad(bottomLeft, bottomRight, topLeft, topRight, lambertian, world);
 
 	// Right wall
 	bottomLeft = { -2, -1, -3 };
 	bottomRight = { -1, -1, -3 };
 	topLeft = { -2, 1, -1 };
 	topRight = { -1, 1, -3 };
-	addQuad(bottomLeft, bottomRight, topLeft, topRight, lambertian, world);
+	addRoom(glm::dvec3(0, 0, -1), 1, lambertian, world);
+	addCube(glm::dvec3(0, -0.8, -1.8), 0.2, metal, world);
+
+	
+
+	//addQuad(bottomLeft, bottomRight, topLeft, topRight, lambertian, world);
 
 	std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 	for (int j = image_height - 1; j >= 0; --j) {
