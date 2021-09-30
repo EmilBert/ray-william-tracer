@@ -36,15 +36,38 @@ glm::dvec3 ray_color(const Ray& ray, const Hittable& world, int depth) {
 	glm::dvec3 unit_direction = glm::normalize(ray.direction());
 	double t = 0.5 * (unit_direction.y + 1.0);
 	return (1.0 - t) * glm::dvec3(1.0, 1.0, 1.0) + t * glm::dvec3(0.5, 0.7, 1.0);
-
 }
 
-void addTriangle(glm::dvec3 position, std::shared_ptr<Material> mat, HittableList& world_ref) {
+void addQuad(const glm::dvec3& position, const glm::dvec3& rotation, shared_ptr<Material> m, HittableList& world_ref) {
+
+	glm::dvec3 bottomLeft = { -2, 0, 0 };
+	glm::dvec3 bottomRight = { 2,0, 0 };
+	glm::dvec3 topLeft = { -2, 4, 0 };
+	glm::dvec3 topRight = { 2,4, 0 };
+
 	TriangleData someData = {
-		position + glm::dvec3(0,0,-2), position + glm::dvec3(2,0.5,-2), position + glm::dvec3(-2, 2, -2)
+		position + bottomLeft, position + bottomRight, position + topLeft
+	};
+	TriangleData someData2 = {
+		position + bottomRight, position + topRight, position + topLeft
 	};
 
-	world_ref.add(make_shared<Triangle>(someData, mat));
+	world_ref.add(make_shared<Triangle>(someData, rotation, m));
+	world_ref.add(make_shared<Triangle>(someData2, rotation, m));
+}
+
+void addQuad(const glm::dvec3& bottomLeft, const glm::dvec3& bottomRight, const glm::dvec3& topLeft, const glm::dvec3& topRight, shared_ptr<Material> m, HittableList& world_ref) {
+	TriangleData someData = {
+		bottomLeft, bottomRight, topLeft
+	};
+	TriangleData someData2 = {
+		bottomRight, topRight, topLeft
+	};
+
+	glm::dvec3 rotation = { 0,0,0 };
+
+	world_ref.add(make_shared<Triangle>(someData, rotation, m));
+	world_ref.add(make_shared<Triangle>(someData2, rotation, m));
 }
 
 int main() {
@@ -76,27 +99,25 @@ int main() {
 	//world.add(make_shared<Triangle>(someData, glm::dvec3(0,0,0), 0, lambertian));
 	//world.add(make_shared<Quad>(glm::dvec3(0, 0, -2), glm::dvec3(0, 2, -2), glm::dvec3(2, 0, -2), glm::dvec3(2, 2, -2), lambertian));
 
-	glm::dvec3 position = { 0, -2, -3 };
+	glm::dvec3 position = { -1, -2, -4 };
+	glm::dvec3 rotation = { 0, 0, 0 };
+	//addQuad(position, rotation, lambertian, world);
 
-	glm::dvec3 bottomLeft = { -2, 0, 0 };
-	glm::dvec3 bottomRight = { 2,0, 0 };
-	glm::dvec3 topLeft = { -2, 4, 0 };
-	glm::dvec3 topRight = { 2,4, 0 };
+	// Left wall
+	glm::dvec3 bottomLeft = { -2, -1, -1 };
+	glm::dvec3 bottomRight = { -1, -1, -3 };
+	glm::dvec3 topLeft = { -2, 1, -1 };
+	glm::dvec3 topRight = { -1, 1, -3 };
+	addQuad(bottomLeft, bottomRight, topLeft, topRight, lambertian, world);
 
-	TriangleData someData = {
-		position + bottomLeft, position + bottomRight, position + topLeft
-	};
-	TriangleData someData2 = {
-		position + bottomRight, position + topRight, position + topLeft
-	};
-
-	//glm::dvec3 rotation = { 0, 3.24 / 2.0, 0 };
-
-	//world.add(make_shared<Triangle>(someData.v0, someData.v1, someData.v2, lambertian)),
-	//world.add(make_shared<Triangle>(someData2.v0, someData2.v1, someData2.v2, rotation, lambertian));
+	// Right wall
+	bottomLeft = { -2, -1, -3 };
+	bottomRight = { -1, -1, -3 };
+	topLeft = { -2, 1, -1 };
+	topRight = { -1, 1, -3 };
+	addQuad(bottomLeft, bottomRight, topLeft, topRight, lambertian, world);
 
 	std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
-
 	for (int j = image_height - 1; j >= 0; --j) {
 		std::cerr << "\rScanlines remaining: " << j << ' ' << std::flush;
 		for (int i = 0; i < image_width; ++i) {

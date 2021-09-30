@@ -58,7 +58,7 @@ public:
         auto scatter_direction = rec.normal + random_unit_vector();
         
         //Catch degenrate scatter direction
-        if(isVectorNearZero(scatter_direction))
+        if(is_vector_near_zero(scatter_direction))
             scatter_direction = rec.normal;
         
         scattered = Ray(rec.p, scatter_direction);
