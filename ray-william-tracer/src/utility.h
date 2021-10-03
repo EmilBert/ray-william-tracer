@@ -5,6 +5,9 @@
 #include <memory>
 #include<glm/vec3.hpp>
 #include<glm/geometric.hpp>
+#include<glm/gtx/transform.hpp>
+#include<glm/gtc/quaternion.hpp>
+#include<glm/gtx/quaternion.hpp>
 
 // Usenings
 using std::shared_ptr;

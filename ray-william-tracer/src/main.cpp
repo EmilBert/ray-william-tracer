@@ -92,13 +92,18 @@ void addRoom(const glm::dvec3& origin, double radius, shared_ptr<Material> m, Hi
 	addQuad(v4,v0,v5,v1, m, world_ref);
 	addQuad(v0,v3,v1,v2, m, world_ref);
 	addQuad(v3,v7,v2,v6, m, world_ref);
-	addQuad(v7,v4,v6,v5, m, world_ref);
+	//addQuad(v7,v4,v6,v5, m, world_ref); // <- backwall
 	addQuad(v4,v7,v0,v3, m, world_ref);
 	addQuad(v1,v2,v5,v6, m, world_ref);
 }
 
 // Outward facing normals
-void addCube(const glm::dvec3& origin, double radius, shared_ptr<Material> m, HittableList& world_ref) {
+void addCube(const glm::dvec3& origin, double radius, shared_ptr<Material> m, HittableList& world_ref, glm::dvec3 rot) {
+
+
+	glm::vec3 o(origin);
+	glm::quat rotQuad;
+	rotQuad = glm::quat(glm::radians(rot));
 
 	double x1 = origin.x - radius;
 	double x2 = origin.x + radius;
@@ -115,6 +120,21 @@ void addCube(const glm::dvec3& origin, double radius, shared_ptr<Material> m, Hi
 	glm::dvec3 v5{ x1, y2, z2 };
 	glm::dvec3 v6{ x2, y2, z2 };
 	glm::dvec3 v7{ x2, y1, z2 };
+
+	// Rotation on local axis
+	//v0 = o + rotQuad * (glm::vec3(v0) - o);
+
+	// Global Rotation
+	//v0 = rotQuad * glm::vec3(v0);
+
+	v0 = o + rotQuad * (glm::vec3(v0) - o);
+	v1 = o + rotQuad * (glm::vec3(v1) - o);
+	v2 = o + rotQuad * (glm::vec3(v2) - o);
+	v3 = o + rotQuad * (glm::vec3(v3) - o);
+	v4 = o + rotQuad * (glm::vec3(v4) - o);
+	v5 = o + rotQuad * (glm::vec3(v5) - o);
+	v6 = o + rotQuad * (glm::vec3(v6) - o);
+	v7 = o + rotQuad * (glm::vec3(v7) - o);
 
 	addQuad(v0, v4, v1, v5, m, world_ref);
 	addQuad(v3, v0, v2, v1, m, world_ref);
@@ -144,7 +164,7 @@ int main() {
     //auto material_left   = make_shared<Metal>(Color(0.8, 0.8, 0.8), 0.3);
 	//auto material_center = make_shared<Dielectric>(1.5);
 	auto dielectric   = make_shared<Dielectric>(1.5);
-    auto metal  = make_shared<Metal>(glm::dvec3(0.8, 0.6, 0.2), 1.0);
+    auto metal  = make_shared<Metal>(glm::dvec3(0.8, 0.6, 0.2), 0.2);
 	auto unlit = make_shared<Unlit>(glm::dvec3(1.0, 0.0, 0.0));
 
     //world.add(make_shared<Sphere>(glm::dvec3( 0.0, -100.5, -1.0), 100.0, material_ground));
@@ -172,7 +192,8 @@ int main() {
 	topLeft = { -2, 1, -1 };
 	topRight = { -1, 1, -3 };
 	addRoom(glm::dvec3(0, 0, -1), 1, lambertian, world);
-	addCube(glm::dvec3(0, -0.8, -1.8), 0.2, metal, world);
+	addCube(glm::dvec3(0.5, 0.5, -1.5), 0.2, dielectric, world, glm::dvec3(0, 20.0, 0));
+	addCube(glm::dvec3(-0.5, -0.5, -1.5), 0.2, metal, world, glm::dvec3(0,45.0,0));
 
 	
 
