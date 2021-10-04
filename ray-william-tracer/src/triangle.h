@@ -18,7 +18,7 @@ public:
 	Triangle(glm::dvec3 p0, glm::dvec3 p1, glm::dvec3 p2, shared_ptr<Material> m) : v0(p0), v1(p1), v2(p2), mat_ptr(m) {
 		normal = glm::normalize(glm::cross(v1 - v0, v2 - v0));
 	}
-	Triangle(TriangleData data, glm::dvec3 rotation_vec, double angle_in_radians, shared_ptr<Material> m);
+	Triangle(TriangleData data, glm::dvec3 rotation, shared_ptr<Material> m);
 
 	// Virtual implementation of hit
 	virtual bool hit(const Ray& ray, double t_min, double t_max, hit_record& rec) const override;
@@ -29,11 +29,20 @@ private:
 	shared_ptr<Material> mat_ptr;
 };
 
-inline Triangle::Triangle(TriangleData data, glm::dvec3 rotation_vec, double angle_in_radians, shared_ptr<Material> m)
+inline Triangle::Triangle(TriangleData data, glm::dvec3 rotation, shared_ptr<Material> m)
 {
-	v0 = glm::rotate(data.v0, angle_in_radians, rotation_vec);
-	v1 = glm::rotate(data.v1, angle_in_radians, rotation_vec);
-	v2 = glm::rotate(data.v2, angle_in_radians, rotation_vec);
+	v0 = glm::rotateX(data.v0, rotation.x);
+	v1 = glm::rotateX(data.v1, rotation.x);
+	v2 = glm::rotateX(data.v2, rotation.x);
+
+	v0 = glm::rotateY(v0, rotation.y);
+	v1 = glm::rotateY(v1, rotation.y);
+	v2 = glm::rotateY(v2, rotation.y);
+
+	v0 = glm::rotateZ(v0, rotation.z);
+	v1 = glm::rotateZ(v1, rotation.z);
+	v2 = glm::rotateZ(v2, rotation.z);
+
 	mat_ptr = m;
 
 	normal = glm::normalize(glm::cross(v1 - v0, v2 - v0));
