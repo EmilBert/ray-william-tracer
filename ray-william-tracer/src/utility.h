@@ -9,6 +9,7 @@
 #include<glm/gtc/quaternion.hpp>
 #include<glm/gtx/quaternion.hpp>
 
+
 // Usenings
 using std::shared_ptr;
 using std::make_shared;
@@ -62,7 +63,7 @@ inline glm::dvec3 random_unit_vector() {
     return glm::normalize(random_in_unit_sphere());
 }
 
-inline bool is_vector_near_zero(const glm::dvec3& vec) {
+inline bool isVectorNearZero(const glm::dvec3& vec) {
     const auto s = 1e-8;
     return (fabs(vec.x) < s) && (fabs(vec.y) < s) && (fabs(vec.z) < s);
 }

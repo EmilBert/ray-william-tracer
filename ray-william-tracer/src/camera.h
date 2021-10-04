@@ -8,7 +8,7 @@ public:
 		double aspect_ratio = 16.0 / 9.0;
 		double viewport_height = 2.0;
 		double viewport_width = aspect_ratio * viewport_height;
-		double focal_length = 1.5;
+		double focal_length = 1.0;
 
 		origin = glm::dvec3(0, 0, 0);
 		horizontal = glm::dvec3(viewport_width, 0, 0);
