@@ -5,7 +5,7 @@
 class Camera {
 public:
 	Camera() {
-		double aspect_ratio = 16.0 / 9.0;
+		double aspect_ratio = 1;
 		double viewport_height = 2.0;
 		double viewport_width = aspect_ratio * viewport_height;
 		double focal_length = 1.0;
@@ -17,7 +17,7 @@ public:
 	}
 
 	Ray get_ray(double u, double v) const {
-		return Ray(origin, lower_left_corner + u * horizontal + v * vertical - origin);
+		return Ray(origin, glm::normalize(lower_left_corner + u * horizontal + v * vertical - origin));
 	}
 
 private:

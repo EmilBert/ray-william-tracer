@@ -27,7 +27,8 @@ inline double degrees_to_radians(double degrees) {
 
 inline double random_double() {
     // Returns a random real in [0,1)
-    return rand() / (RAND_MAX + 1.0);
+    double x = rand() / (RAND_MAX + 1.0);
+    return x;
 }
 
 inline double random_double(double min, double max) {
@@ -40,7 +41,7 @@ inline double clamp(double x, double min, double max) {
 }
 
 inline glm::dvec3 random_vector() {
-    return { random_double(), random_double(), random_double() };
+    return { random_double(-1,1), random_double(-1,1), random_double(-1,1) };
 }
 
 inline glm::dvec3 random_in_unit_sphere() {
@@ -60,11 +61,12 @@ inline glm::dvec3 random_in_hemisphere(const glm::dvec3& normal) {
 }
 
 inline glm::dvec3 random_unit_vector() {
-    return glm::normalize(random_in_unit_sphere());
+    auto x = glm::normalize(random_in_unit_sphere());
+    return x;
 }
 
 inline bool isVectorNearZero(const glm::dvec3& vec) {
-    const auto s = 1e-8;
+    const auto s = 1e-6;
     return (fabs(vec.x) < s) && (fabs(vec.y) < s) && (fabs(vec.z) < s);
 }
 

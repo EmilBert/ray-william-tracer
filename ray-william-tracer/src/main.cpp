@@ -55,8 +55,11 @@ void addQuad(const glm::dvec3& bottomLeft, const glm::dvec3& bottomRight, const 
 }
 
 // Inward facing normals
-void addRoom(const glm::dvec3& origin, double radius, shared_ptr<Material> m, HittableList& world_ref) {
-	double x1 = origin.x - radius;
+void addRoom(const glm::dvec3& origin, double radius, 
+		shared_ptr<Material> m, HittableList& world_ref, 
+		shared_ptr<Material> left, shared_ptr<Material> right)
+{
+	double x1 = origin.x - radius; 
 	double x2 = origin.x + radius;
 	double y1 = origin.y - radius;
 	double y2 = origin.y + radius;
@@ -71,12 +74,14 @@ void addRoom(const glm::dvec3& origin, double radius, shared_ptr<Material> m, Hi
 	glm::dvec3 v6{ x2, y2, z2 };
 	glm::dvec3 v7{ x2, y1, z2 };
 
-	addQuad(v4, v0, v5, v1, m, world_ref);
-	addQuad(v0, v3, v1, v2, m, world_ref);
-	addQuad(v3, v7, v2, v6, m, world_ref);
+	glm::dvec3 translation = { 0,0,0.5 };
+
+	addQuad(v4, v0, v5, v1, left, world_ref); // left
+	//addQuad(v0+translation, v3+translation, v1+translation, v2+translation, m, world_ref); // front wall
+	addQuad(v3, v7, v2, v6, right, world_ref);  // höger väggen
 	//addQuad(v7,v4,v6,v5, m, world_ref); // <- backwall
-	addQuad(v4, v7, v0, v3, m, world_ref);
-	addQuad(v1, v2, v5, v6, m, world_ref);
+	addQuad(v4, v7, v0, v3, m, world_ref); // golvet
+	addQuad(v1, v2, v5, v6, m, world_ref); // taket
 }
 
 // Outward facing normals
@@ -122,37 +127,47 @@ void addCube(const glm::dvec3& origin, double radius, shared_ptr<Material> m, Hi
 int main() {
 	// Creating our camera
 	Camera cam;
-	glm::dvec3 bg = glm::dvec3(0.1, 0.1, 0.1);
+	glm::dvec3 bg = glm::dvec3(0.8, 0.8 , 0.8);
 	// Some screen constants
-    const auto aspect_ratio = 16.0 / 9.0;
-    const int image_width = 450;
+	const auto aspect_ratio = 1;
+    const int image_width = 500;
     const int image_height = static_cast<int>(image_width / aspect_ratio);
-    const int samples_per_pixel = 100;
-	const int max_depth = 50;
+    const int samples_per_pixel = 150;
+	const int max_depth = 20;
 
 	// Creating and setting up our world
 	HittableList world;
 	auto material_ground = make_shared<Lambertian>(glm::dvec3(0.8, 0.8, 0.0));
-    auto lambertian = make_shared<Lambertian>(glm::dvec3(0.1, 0.2, 0.4));
-	auto diffuse_light = make_shared<Diffuse_light>(glm::dvec3(1, 1, 1)); //Can be put to higher values if need be
+    auto lambertian = make_shared<Lambertian>(glm::dvec3(0.6, 0.6, 0.6));
+	auto lambertian_red = make_shared<Lambertian>(glm::dvec3(1.0, 0, 0));
+	auto lambertian_green = make_shared<Lambertian>(glm::dvec3(0, 1.0, 0));
+
+	const auto intensity = 4.0;
+	auto diffuse_light = make_shared<Diffuse_light>(glm::dvec3(intensity)); //Can be put to higher values if need be
     //auto material_left   = make_shared<Metal>(Color(0.8, 0.8, 0.8), 0.3);
 	//auto material_center = make_shared<Dielectric>(1.5);
 	auto dielectric   = make_shared<Dielectric>(1.5);
-    auto metal  = make_shared<Metal>(glm::dvec3(0.8, 0.6, 0.2), 1.0);
+    auto metal  = make_shared<Metal>(glm::dvec3(0.8, 0.6, 0.2), 0);
 	auto unlit = make_shared<Unlit>(glm::dvec3(1.0, 0.0, 0.0));
 
     //world.add(make_shared<Sphere>(glm::dvec3( 0.0, -100.5, -1.0), 100.0, material_ground));
-    //world.add(make_shared<Sphere>(glm::dvec3( 0.0,    0.0, -1.0),   -0.4, diffuse_light));
     //world.add(make_shared<Sphere>(glm::dvec3(-1.0,    0.0, -1.0),   0.5, lambertian)); // Negative radiance on dielectric material spheres gives a "hollow glass ball" effect, because of the direction the normals point
-    //world.add(make_shared<Sphere>(glm::dvec3( 1.0,    0.0, -1.0),   0.5, metal));
+    //world.add(make_shared<Sphere>(glm::dvec3( 0,    0.0, -0.55),   0.3, metal));
 
 	TriangleData someData = {
 		glm::dvec3(0,0,-2), glm::dvec3(2,0.5,-2), glm::dvec3(-2, 2, -2)
 	};
 
-	addRoom(glm::dvec3(0, 0, -1), 1, lambertian, world);
+	addRoom(glm::dvec3(0, 0, -1), 1, lambertian, world, lambertian_red, lambertian_green);
 	//addCube(glm::dvec3(0.5, 0.5, -1.5), 0.2, dielectric, world, glm::dvec3(0, 20.0, 0));
-	addCube(glm::dvec3(0, 0, -1), 0.2, diffuse_light, world, glm::dvec3(0, 0, 0));
+	//addCube(glm::dvec3(0, 0, -1), 0.1, diffuse_light, world, glm::dvec3(0, 0, 0));
+    //world.add(make_shared<Sphere>(glm::dvec3( 0.0,    0.0, -1.0),   0.3, diffuse_light));
+	double eps = 1e-06;
+	double y = 1 - eps;
+	double z = -0.6;
+	double size = 0.2;
+	//addQuad(glm::dvec3(0.2, y, z-size), glm::dvec3(-0.2, y, z-size), glm::dvec3(0.2, y, z+size), glm::dvec3(-0.2, y, z+size), diffuse_light, world);
+
 
 	//world.add(make_shared<Triangle>(someData, glm::dvec3(0,0,0), 0, lambertian));
 	//world.add(make_shared<Quad>(glm::dvec3(0, 0, -2), glm::dvec3(0, 2, -2), glm::dvec3(2, 0, -2), glm::dvec3(2, 2, -2), lambertian));

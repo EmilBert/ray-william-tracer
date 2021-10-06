@@ -59,14 +59,13 @@ bool Triangle::hit(const Ray& ray, double t_min, double t_max, hit_record& rec) 
 	glm::dvec3 pvec = glm::cross(ray.dir, v0v2);
 	double det = glm::dot(v0v1, pvec);
 
-	constexpr double eps = 0.00001;
+	constexpr double eps = 0.001;
 
 	// If the determinant is negative the triangle is backfacing
 	// if the determinant is close to 0, the ray misses the triangle
 	// uncomment this re-assignment to "disable" back face culling
-	det = fabs(det);
-	if (det < eps) return false;
-	
+	if (det > -eps && det < eps) return false;
+
 	float invDet = 1 / det;
 
 	glm::dvec3 tvec = ray.orig - v0;
@@ -75,7 +74,7 @@ bool Triangle::hit(const Ray& ray, double t_min, double t_max, hit_record& rec) 
 
 	glm::dvec3 qvec = cross(tvec, v0v1);
 	double v = glm::dot(ray.dir, qvec) * invDet;
-	if (v < 0 | u + v > 1) return false;
+	if (v < 0 || u + v > 1) return false;
 
 	double t = glm::dot(v0v2, qvec) * invDet;
 
