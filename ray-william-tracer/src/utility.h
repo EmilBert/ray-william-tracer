@@ -49,9 +49,12 @@ inline glm::dvec3 random_vector(double min, double max) {
 }
 
 inline glm::dvec3 random_in_unit_sphere() {
+    int i = 0;
     while (true) {
-        glm::dvec3 p = random_vector(-1,1);
+        if (i > 0) std::cerr << "Running random_in_unit_sphere: " << i << std::endl;
+        glm::dvec3 p = random_vector(-1, 1);
         if (glm::dot(p, p) >= 1) continue; // We are outside unit-sphere
+        i++;
         return p;
     }
 }
@@ -72,6 +75,12 @@ inline glm::dvec3 random_unit_vector() {
 inline bool isVectorNearZero(const glm::dvec3& vec) {
     const auto s = 1e-6;
     return (fabs(vec.x) < s) && (fabs(vec.y) < s) && (fabs(vec.z) < s);
+}
+
+inline void logProgress(int curr, int total) {
+    double percentage = curr / static_cast<double>(total);
+
+    //if(percentage < )
 }
 
 // Common Headers

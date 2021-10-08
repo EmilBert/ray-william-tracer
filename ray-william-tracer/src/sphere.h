@@ -16,7 +16,6 @@ class Sphere : public Hittable {
 		shared_ptr<Material> mat_ptr;
 };
 
-// KNOCKOUT!
 bool Sphere::hit(const Ray& ray, double t_min, double t_max, hit_record& rec) const {
 	glm::dvec3 oc = ray.origin() - center; // Ray pointing from ray origin to center
 	double a = glm::dot(ray.direction(), ray.direction()); // Length of the ray squared // @POTENTIAL: Glm convert 
