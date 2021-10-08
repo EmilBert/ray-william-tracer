@@ -41,12 +41,16 @@ inline double clamp(double x, double min, double max) {
 }
 
 inline glm::dvec3 random_vector() {
-    return { random_double(-1,1), random_double(-1,1), random_double(-1,1) };
+    return { random_double(), random_double(), random_double() };
+}
+
+inline glm::dvec3 random_vector(double min, double max) {
+    return { random_double(min,max), random_double(min,max), random_double(min,max) };
 }
 
 inline glm::dvec3 random_in_unit_sphere() {
     while (true) {
-        glm::dvec3 p = random_vector();
+        glm::dvec3 p = random_vector(-1,1);
         if (glm::dot(p, p) >= 1) continue; // We are outside unit-sphere
         return p;
     }

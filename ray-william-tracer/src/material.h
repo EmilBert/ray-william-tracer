@@ -58,7 +58,6 @@ public:
     ) const override {
 
         // TODO: Russian roulette implementation (see lecture 10 notes)
-
         auto scatter_direction = rec.normal + random_unit_vector();
         
         //Catch degenrate scatter direction
