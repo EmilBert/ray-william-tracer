@@ -132,8 +132,8 @@ int main() {
 	const auto aspect_ratio = 1;
     const int image_width = 500;
     const int image_height = static_cast<int>(image_width / aspect_ratio);
-    const int samples_per_pixel = 200;
-	const int max_depth = 40;
+    const int samples_per_pixel = 50;
+	const int max_depth = 20;
 
 	// Creating and setting up our world
 	HittableList world;
@@ -157,7 +157,7 @@ int main() {
 	addRoom(glm::dvec3(0, 0, -1), 1, material_ground, world, lambertian_red, lambertian_green);
 	//addCube(glm::dvec3(0.5, 0.5, -1.5), 0.2, dielectric, world, glm::dvec3(0, 20.0, 0));
 	//addCube(glm::dvec3(0, 0, -1), 0.1, diffuse_light, world, glm::dvec3(0, 0, 0));
-    world.add(make_shared<Sphere>(glm::dvec3( 0.2,   -0.1, -1.0),   0.15, metal));
+    world.add(make_shared<Sphere>(glm::dvec3( 0.2,   -0.1, -1.0),   0.15, lambertian));
 	double eps = 1e-06;
 	double y = 1 - eps;
 	double z = -1;
@@ -168,10 +168,12 @@ int main() {
 
 	//world.add(make_shared<Triangle>(someData, glm::dvec3(0,0,0), 0, lambertian));
 	//world.add(make_shared<Quad>(glm::dvec3(0, 0, -2), glm::dvec3(0, 2, -2), glm::dvec3(2, 0, -2), glm::dvec3(2, 2, -2), lambertian));
-
-	std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 			
 	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now(); // Start of render time
+
+	// Create a framebuffer which holds all of our pixels
+	glm::dvec3* frambuffer = new glm::dvec3[image_width * image_height];
+	glm::dvec3* pixel = frambuffer; // pointer to current memory adress inside the framebuffer
 
 	for (int j = image_height - 1; j >= 0; --j) {
 		//std::cerr << "\rScanlines remaining: " << j << ' ' << std::flush;
@@ -188,13 +190,21 @@ int main() {
 				pixel_color += ray_color(r, bg, world, max_depth);
 			}
 
-			// Write the final, super-sampled color
-			write_color(std::cout, pixel_color, samples_per_pixel);
+			// Write the final, super-sampled color to our framebuffer
+			// Dereference the memory adress and stride forward in memory
+			*(pixel++) = pixel_color;
+			// write_color(std::cout, pixel_color, samples_per_pixel);
 		}
 	}
 
 	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now(); // end of render
+	std::cerr << "Render time: " << std::chrono::duration_cast<std::chrono::seconds>(end - begin).count() << "[seconds]";
 
-	std::cerr << "Render time: " << std::chrono::duration_cast<std::chrono::seconds>(end - begin).count() << "[µs]" << std::endl;
-	std::cerr << "\nDone.\n";
+	// Write image buffer to file
+	std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
+	for (uint32_t i = 0; i < image_width * image_height; ++i) {
+		write_color(std::cout, frambuffer[i], samples_per_pixel);
+	}
+
+	std::cerr << "Done." << std::endl;;
 }
