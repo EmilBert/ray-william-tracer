@@ -203,10 +203,16 @@ int main() {
 	// Pixel shading pass
 	for (uint32_t i = 0; i < image_width * image_height; ++i) {
 		glm::dvec3 pixel_color = frambuffer[i];
+		
+		// TODO: I want pixel position here please and thank you
 
+		/*
 		// Convert pixel to gray-scale
 		double luminance = (pixel_color.r + pixel_color.g + pixel_color.b) / 3.0;
 		pixel_color = glm::dvec3(luminance);
+		*/
+
+		// Vignette effect
 
 		frambuffer[i] = pixel_color;
 	}
