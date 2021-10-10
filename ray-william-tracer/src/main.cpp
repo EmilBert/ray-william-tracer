@@ -200,6 +200,17 @@ int main() {
 	std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now(); // end of render
 	std::cerr << "Render time: " << std::chrono::duration_cast<std::chrono::seconds>(end - begin).count() << "[seconds]";
 
+	// Pixel shading pass
+	for (uint32_t i = 0; i < image_width * image_height; ++i) {
+		glm::dvec3 pixel_color = frambuffer[i];
+
+		// Convert pixel to gray-scale
+		double luminance = (pixel_color.r + pixel_color.g + pixel_color.b) / 3.0;
+		pixel_color = glm::dvec3(luminance);
+
+		frambuffer[i] = pixel_color;
+	}
+
 	// Write image buffer to file
 	std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 	for (uint32_t i = 0; i < image_width * image_height; ++i) {
