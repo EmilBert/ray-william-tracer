@@ -5,7 +5,15 @@
 class Camera {
 public:
 	Camera() {
-		double aspect_ratio = 1;
+
+		// Some screen constants
+		aspect_ratio = 1;
+		image_width = 300;
+		image_height = static_cast<int>(image_width / aspect_ratio);
+		samples_per_pixel = 50;
+		max_depth = 20;
+
+		// Initalize camera stuff
 		double viewport_height = 2.0;
 		double viewport_width = aspect_ratio * viewport_height;
 		double focal_length = 1.0;
@@ -19,6 +27,13 @@ public:
 	Ray get_ray(double u, double v) const {
 		return Ray(origin, glm::normalize(lower_left_corner + u * horizontal + v * vertical - origin));
 	}
+
+public:
+	double aspect_ratio;
+	double image_width;
+	double image_height;
+	double samples_per_pixel;
+	double max_depth;
 
 private:
 	glm::dvec3 origin;

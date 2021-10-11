@@ -3,12 +3,12 @@
 #include <cmath>
 #include <limits>
 #include <memory>
+#include<iostream>
 #include<glm/vec3.hpp>
 #include<glm/geometric.hpp>
 #include<glm/gtx/transform.hpp>
 #include<glm/gtc/quaternion.hpp>
 #include<glm/gtx/quaternion.hpp>
-
 
 // Usenings
 using std::shared_ptr;
@@ -82,7 +82,3 @@ inline void logProgress(int curr, int total) {
 
     //if(percentage < )
 }
-
-// Common Headers
-
-#include "ray.h"
