@@ -28,13 +28,13 @@ void Scene::setup_scene()
 	add_room(glm::dvec3(0, 0, -1), 1, material_ground	, lambertian_red, lambertian_green);
 	//addCube(glm::dvec3(0.5, 0.5, -1.5), 0.2, dielectric, world, glm::dvec3(0, 20.0, 0));
 	//addCube(glm::dvec3(0, 0, -1), 0.1, diffuse_light, world, glm::dvec3(0, 0, 0));
-	//world.add(make_shared<Sphere>(glm::dvec3(0.2, -0.1, -1.0), 0.15, lambertian));
+	world.add(make_shared<Sphere>(glm::dvec3(0.2, 0.0, -1.2), 0.3, lambertian_green));
 	double eps = 1e-06;
 	double y = 1 - eps;
 	double z = -1;
 	double size = 0.40;
 	double x = 0;
-	//add_quad(glm::dvec3(x + size, y, z - size), glm::dvec3(x - size, y, z - size), glm::dvec3(x + size, y, z + size), glm::dvec3(x - size, y, z + size), diffuse_light);
+	add_quad(glm::dvec3(x + size, y, z - size), glm::dvec3(x - size, y, z - size), glm::dvec3(x + size, y, z + size), glm::dvec3(x - size, y, z + size), diffuse_light);
 
 	//world.add(make_shared<Triangle>(someData, glm::dvec3(0,0,0), 0, lambertian));
 	//world.add(make_shared<Quad>(glm::dvec3(0, 0, -2), glm::dvec3(0, 2, -2), glm::dvec3(2, 0, -2), glm::dvec3(2, 2, -2), lambertian));
@@ -43,7 +43,7 @@ void Scene::setup_scene()
 
 void Scene::render_scene()
 {
-	glm::dvec3 bg = { 1,1,1 };
+	glm::dvec3 bg = { 0,0,0 };
 
 	glm::dvec3* pixel = framebuffer; // Current pixel we write to
 	for (int j = camera.image_height - 1; j >= 0; --j) {
@@ -108,6 +108,20 @@ glm::dvec3 Scene::ray_color(const Ray& ray, glm::dvec3 bg, const Hittable& world
 
 		if (!rec.mat_ptr->scatter(ray, rec, attenuation, scattered))
 			return emitted;
+
+		// Check if hit point is illuminated or shadowed?
+		// List of all lights?
+		if (!rec.mat_ptr->isLightSource()) {
+			// Check if the point rec.p is in view of any light source we have
+			// send a ray to all light sources
+			/* 
+			for object : world {
+				if object is light source:
+					send ray from rec.p to object.p, is there any obstruction? 
+					use answer to determine if we are in shadow or not
+			}
+			*/
+		}
 
 		return emitted + attenuation * ray_color(scattered, bg, world, depth - 1);
 	}

@@ -14,7 +14,9 @@ public:
     HittableList(shared_ptr<Hittable> object) { add(object); }
 
     void clear() { objects.clear(); }
-    void add(shared_ptr<Hittable> object) { objects.push_back(object); }
+    void add(shared_ptr<Hittable> object) { 
+        objects.push_back(object); 
+    }
 
     virtual bool hit(
         const Ray& r, double t_min, double t_max, hit_record& rec) const override;

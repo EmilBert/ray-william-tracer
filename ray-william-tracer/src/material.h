@@ -14,6 +14,8 @@ public:
 
     virtual bool scatter(const Ray& ray_in, const hit_record& rec, glm::dvec3& attenuation, Ray& scattered
     ) const = 0;
+
+    virtual bool isLightSource() { return false; }
 };
 
 class Unlit : public Material {
