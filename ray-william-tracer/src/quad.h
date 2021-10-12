@@ -5,6 +5,7 @@
 #include"triangle.h"
 
 #include<glm/vec3.hpp>
+#include<vector>
 
 class Quad : public Hittable {
 public:
@@ -14,6 +15,7 @@ public:
 	//Quad(Point3 origin, double width, double height, double xRot, double yRot, shared_ptr<Material> m) {}
 
 	virtual bool hit(const Ray& ray, double t_min, double t_max, hit_record& rec) const override;
+	std::vector<glm::dvec3> give_me_vertices() { return { v0,v1,v2,v3 }; }
 
 private:
 

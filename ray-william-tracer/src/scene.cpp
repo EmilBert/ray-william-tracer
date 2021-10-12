@@ -6,6 +6,7 @@
 #include"triangle.h"
 #include"sphere.h"
 #include"color.h"
+#include"light.h"
 
 Scene::Scene() : camera(), world()
 {
@@ -36,6 +37,9 @@ void Scene::setup_scene()
 	double x = 0;
 	add_quad(glm::dvec3(x + size, y, z - size), glm::dvec3(x - size, y, z - size), glm::dvec3(x + size, y, z + size), glm::dvec3(x - size, y, z + size), diffuse_light);
 
+	Light light({ glm::dvec3(x + size, y, z + size), glm::dvec3(x - size, y, z + size), glm::dvec3(x + size, y, z - size), glm::dvec3(x - size, y, z - size) });
+
+
 	//world.add(make_shared<Triangle>(someData, glm::dvec3(0,0,0), 0, lambertian));
 	//world.add(make_shared<Quad>(glm::dvec3(0, 0, -2), glm::dvec3(0, 2, -2), glm::dvec3(2, 0, -2), glm::dvec3(2, 2, -2), lambertian));
 
@@ -64,7 +68,6 @@ void Scene::render_scene()
 			// Write the final, super-sampled color to our framebuffer
 			// Dereference the memory adress and stride forward in memory
 			*(pixel++) = pixel_color;
-
 		}
 	}
 }

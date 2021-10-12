@@ -2,6 +2,17 @@
 
 #include"utility.h"
 
+/*
+Quad xyz
+Vector<xyz> samplesPoints
+
+Quad position & size
+generate samplePoints
+
+
+
+*/
+
 class Camera {
 public:
 	Camera() {
@@ -10,7 +21,7 @@ public:
 		aspect_ratio = 1;
 		image_width = 300;
 		image_height = static_cast<int>(image_width / aspect_ratio);
-		samples_per_pixel = 50;
+		samples_per_pixel = 300;
 		max_depth = 20;
 
 		// Initalize camera stuff
