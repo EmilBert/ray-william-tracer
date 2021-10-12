@@ -13,7 +13,9 @@
 	v2 ------ v3
 */
 
-Light::Light(std::vector<glm::dvec3> vertices, glm::dvec3 p) : position(p)
+Light::Light(std::vector<glm::dvec3> vertices, glm::dvec3 p) : position(p), 
+	t0({ vertices[0], vertices[1], vertices[2] }, { 0,0,0 }, nullptr),
+	t1({ vertices[3], vertices[1], vertices[2] }, { 0,0,0 }, nullptr)
 {
 	// generate samplePoints
 	double const eps = 0.1;
@@ -37,7 +39,9 @@ Light::Light(std::vector<glm::dvec3> vertices, glm::dvec3 p) : position(p)
 			sample_points.push_back(topToBot);
 		}
 	}
+}
 
-	std::cout << "I have aids" << std::endl;
-
+bool Light::hit(const Ray& ray, double t_min, double t_max, hit_record& rec) const
+{
+	return t0.hit(ray, t_min, t_max, rec) || t1.hit(ray, t_min, t_max, rec);
 }

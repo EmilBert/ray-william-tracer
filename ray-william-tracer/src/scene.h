@@ -32,7 +32,6 @@ public:
 
 private:
 	HittableList world;
-	std::vector<Light> lights;
 	Camera camera;
 	glm::dvec3* framebuffer;
 };

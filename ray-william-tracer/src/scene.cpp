@@ -30,6 +30,7 @@ void Scene::setup_scene()
 	//addCube(glm::dvec3(0.5, 0.5, -1.5), 0.2, dielectric, world, glm::dvec3(0, 20.0, 0));
 	//addCube(glm::dvec3(0, 0, -1), 0.1, diffuse_light, world, glm::dvec3(0, 0, 0));
 	world.add(make_shared<Sphere>(glm::dvec3(0.2, 0.0, -1.2), 0.3, lambertian_green));
+	world.add(make_shared<Sphere>(glm::dvec3(-0.35, 0.0, -1.2), 0.2, lambertian_red));
 	double eps = 1e-06;
 	double y = 1 - eps;
 	double z = -1;
@@ -37,8 +38,8 @@ void Scene::setup_scene()
 	double x = 0;
 	//add_quad(glm::dvec3(x + size, y, z - size), glm::dvec3(x - size, y, z - size), glm::dvec3(x + size, y, z + size), glm::dvec3(x - size, y, z + size), unlit);
 
-	Light light({ glm::dvec3(x + size, y, z + size), glm::dvec3(x - size, y, z + size), glm::dvec3(x + size, y, z - size), glm::dvec3(x - size, y, z - size) }, { 0, y,0 });
-	lights.push_back(light);
+	std::vector<glm::dvec3> v = { glm::dvec3(x + size, y, z + size), glm::dvec3(x - size, y, z + size), glm::dvec3(x + size, y, z - size), glm::dvec3(x - size, y, z - size) };
+	world.add(make_shared<Light>(v, glm::dvec3(x, y, z)));
 
 	//world.add(make_shared<Triangle>(someData, glm::dvec3(0,0,0), 0, lambertian));
 	//world.add(make_shared<Quad>(glm::dvec3(0, 0, -2), glm::dvec3(0, 2, -2), glm::dvec3(2, 0, -2), glm::dvec3(2, 2, -2), lambertian));
@@ -47,7 +48,7 @@ void Scene::setup_scene()
 
 void Scene::render_scene()
 {
-	glm::dvec3 bg = { 0.7, 0.7 ,0.7 };
+	glm::dvec3 bg = { 1.0, 1.0, 1.0 };
 
 	glm::dvec3* pixel = framebuffer; // Current pixel we write to
 	for (int j = camera.image_height - 1; j >= 0; --j) {
@@ -107,30 +108,40 @@ glm::dvec3 Scene::ray_color(const Ray& ray, glm::dvec3 bg, const Hittable& world
 	if (world.hit(ray, 0.001, infinity, rec)) { // Check for hit and record some data
 		Ray scattered;
 		glm::dvec3 attenuation;
-		glm::dvec3 emitted = rec.mat_ptr->emitted(rec.p);
+		// glm::dvec3 emitted = rec.mat_ptr->emitted(rec.p);
 
-		if (!rec.mat_ptr->scatter(ray, rec, attenuation, scattered))
-			return emitted;
+		if ((*rec.hittable_ptr).isLight()) {
+			return glm::dvec3(1, 1, 1);
+		}
+
+		rec.mat_ptr->scatter(ray, rec, attenuation, scattered);
 
 		// Check if hit point is illuminated or shadowed?
 		bool hitSomething = false;
-		for (auto light : lights) {
-			const double intensity = 1;
-			const glm::dvec3 color = { 1,1,1 };
-			
+		for (int i : this->world.light_indices) {
 			// Get some data 
-			glm::dvec3 position = light.position;
-			glm::dvec3 toLight = -glm::normalize(position - rec.p);
+			auto l = dynamic_cast<Light*>(this->world.objects[i].get());
+
+			glm::dvec3 position = l->position;
+			glm::dvec3 toLight = glm::normalize(position - rec.p);
 
 			// Shoot our ray, TOOD: do it for each sample point for light
 			Ray pointToLight(rec.p, toLight);
-			hit_record _; // unused
-			hitSomething = world.hit(pointToLight, 0.001, infinity, _);
+			hit_record light_record; // unused
+
+			// Shoot ray and see if we hit something
+			if (world.hit(pointToLight, 0.001, infinity, light_record)) {
+				if (glm::distance(rec.p, light_record.p) < glm::distance(rec.p, position)) {
+					// Object in front of us
+					hitSomething = true;
+				}
+			}
 		}
 
-		return (double)!hitSomething * attenuation * ray_color(scattered, bg, world, depth - 1);
-		// return emitted + lightColor * attenuation * ray_color(scattered, bg, world, depth - 1);
+		return (hitSomething ? 0.5 : 1.0) * attenuation * ray_color(scattered, bg, world, depth - 1);
+		//return (double)!hitSomething * attenuation * ray_color(scattered, bg, world, depth - 1);
 	}
+
 	return bg; 
 }
 
@@ -165,7 +176,7 @@ void Scene::add_room(const glm::dvec3& origin, double radius, shared_ptr<Materia
 	glm::dvec3 v6{ x2, y2, z2 };
 	glm::dvec3 v7{ x2, y1, z2 };
 
-	glm::dvec3 translation = { 0,0,0 };
+	glm::dvec3 translation = { 0,0,0.2 };
 
 	add_quad(v4, v0, v5, v1, left); // left
 	add_quad(v0+translation, v3+translation, v1+translation, v2+translation, m); // front wall

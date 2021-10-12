@@ -16,6 +16,7 @@ public:
     void clear() { objects.clear(); }
     void add(shared_ptr<Hittable> object) { 
         objects.push_back(object); 
+        if ((*object).isLight()) light_indices.push_back(objects.size() - 1);
     }
 
     virtual bool hit(
@@ -23,5 +24,6 @@ public:
 
 public:
     std::vector<shared_ptr<Hittable>> objects;
+    std::vector<int> light_indices;
 };
 

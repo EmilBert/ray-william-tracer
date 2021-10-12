@@ -146,6 +146,7 @@
     <ClCompile Include="src\light.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\scene.cpp" />
+    <ClCompile Include="src\triangle.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\color.h" />

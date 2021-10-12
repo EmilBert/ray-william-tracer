@@ -7,6 +7,7 @@
 #include"ray.h"
 
 class Material;
+class Hittable;
 
 struct hit_record {
 	glm::dvec3 p;
@@ -14,6 +15,7 @@ struct hit_record {
 	std::shared_ptr<Material> mat_ptr;
 	double t;
 	bool front_face;
+	std::shared_ptr<Hittable> hittable_ptr;
 
 	inline void set_face_normal(const Ray& ray, const glm::dvec3& outward_normal) {
 		front_face = glm::dot(ray.direction(), outward_normal) < 0;
