@@ -13,10 +13,10 @@
 	v2 ------ v3
 */
 
-Light::Light(std::vector<glm::dvec3> vertices)
+Light::Light(std::vector<glm::dvec3> vertices, glm::dvec3 p) : position(p)
 {
 	// generate samplePoints
-	double const eps = 1e-3;
+	double const eps = 0.1;
 	int numberOfSamples = 20;
 
 	glm::dvec3 v0v1 = glm::normalize(vertices[1] - vertices[0]);
@@ -32,11 +32,10 @@ Light::Light(std::vector<glm::dvec3> vertices)
 		
 		glm::dvec3 topToBot = p01;
 		glm::dvec3 finishedPosition = p23;
-		while (glm::distance(p01, p23) > eps) {
-			topToBot += (1.0 / numberOfSamples) * v0v2;
+		while (glm::distance(topToBot, p23) > eps) {
+			topToBot += (1.0 / numberOfSamples) * glm::normalize(p23-topToBot);
 			sample_points.push_back(topToBot);
 		}
-
 	}
 
 	std::cout << "I have aids" << std::endl;

@@ -35,10 +35,10 @@ void Scene::setup_scene()
 	double z = -1;
 	double size = 0.40;
 	double x = 0;
-	add_quad(glm::dvec3(x + size, y, z - size), glm::dvec3(x - size, y, z - size), glm::dvec3(x + size, y, z + size), glm::dvec3(x - size, y, z + size), diffuse_light);
+	//add_quad(glm::dvec3(x + size, y, z - size), glm::dvec3(x - size, y, z - size), glm::dvec3(x + size, y, z + size), glm::dvec3(x - size, y, z + size), unlit);
 
-	Light light({ glm::dvec3(x + size, y, z + size), glm::dvec3(x - size, y, z + size), glm::dvec3(x + size, y, z - size), glm::dvec3(x - size, y, z - size) });
-
+	Light light({ glm::dvec3(x + size, y, z + size), glm::dvec3(x - size, y, z + size), glm::dvec3(x + size, y, z - size), glm::dvec3(x - size, y, z - size) }, { 0, y,0 });
+	lights.push_back(light);
 
 	//world.add(make_shared<Triangle>(someData, glm::dvec3(0,0,0), 0, lambertian));
 	//world.add(make_shared<Quad>(glm::dvec3(0, 0, -2), glm::dvec3(0, 2, -2), glm::dvec3(2, 0, -2), glm::dvec3(2, 2, -2), lambertian));
@@ -47,7 +47,7 @@ void Scene::setup_scene()
 
 void Scene::render_scene()
 {
-	glm::dvec3 bg = { 0,0,0 };
+	glm::dvec3 bg = { 0.7, 0.7 ,0.7 };
 
 	glm::dvec3* pixel = framebuffer; // Current pixel we write to
 	for (int j = camera.image_height - 1; j >= 0; --j) {
@@ -113,20 +113,23 @@ glm::dvec3 Scene::ray_color(const Ray& ray, glm::dvec3 bg, const Hittable& world
 			return emitted;
 
 		// Check if hit point is illuminated or shadowed?
-		// List of all lights?
-		if (!rec.mat_ptr->isLightSource()) {
-			// Check if the point rec.p is in view of any light source we have
-			// send a ray to all light sources
-			/* 
-			for object : world {
-				if object is light source:
-					send ray from rec.p to object.p, is there any obstruction? 
-					use answer to determine if we are in shadow or not
-			}
-			*/
+		bool hitSomething = false;
+		for (auto light : lights) {
+			const double intensity = 1;
+			const glm::dvec3 color = { 1,1,1 };
+			
+			// Get some data 
+			glm::dvec3 position = light.position;
+			glm::dvec3 toLight = -glm::normalize(position - rec.p);
+
+			// Shoot our ray, TOOD: do it for each sample point for light
+			Ray pointToLight(rec.p, toLight);
+			hit_record _; // unused
+			hitSomething = world.hit(pointToLight, 0.001, infinity, _);
 		}
 
-		return emitted + attenuation * ray_color(scattered, bg, world, depth - 1);
+		return (double)!hitSomething * attenuation * ray_color(scattered, bg, world, depth - 1);
+		// return emitted + lightColor * attenuation * ray_color(scattered, bg, world, depth - 1);
 	}
 	return bg; 
 }
@@ -162,7 +165,7 @@ void Scene::add_room(const glm::dvec3& origin, double radius, shared_ptr<Materia
 	glm::dvec3 v6{ x2, y2, z2 };
 	glm::dvec3 v7{ x2, y1, z2 };
 
-	glm::dvec3 translation = { 0,0,0.5 };
+	glm::dvec3 translation = { 0,0,0 };
 
 	add_quad(v4, v0, v5, v1, left); // left
 	add_quad(v0+translation, v3+translation, v1+translation, v2+translation, m); // front wall

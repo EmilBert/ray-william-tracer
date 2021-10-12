@@ -2,6 +2,7 @@
 
 #include"hittable_list.h"
 #include"camera.h"
+#include"light.h"
 #include<string>
 
 class Scene {
@@ -31,6 +32,7 @@ public:
 
 private:
 	HittableList world;
+	std::vector<Light> lights;
 	Camera camera;
 	glm::dvec3* framebuffer;
 };
