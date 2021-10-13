@@ -10,6 +10,13 @@
 #include"sdl_rendering.h"
 
 #include<glm/vec3.hpp>
+#include<atomic>
+#include<thread>
+#include<vector>
+#include<future>
+#include<asyncinfo.h>
+
+#define RAY_WILLIAM_MULTI_THREAD true
 
 Scene::Scene() : camera(), world()
 {
@@ -53,7 +60,51 @@ void Scene::render_scene()
 {
 	glm::dvec3 bg = { 1.0, 1.0, 1.0 };
 
+#if RAY_WILLIAM_MULTI_THREAD 
+	// Multi-threading additions
+	int max = camera.image_width * camera.image_height;
+	std::size_t cores = std::thread::hardware_concurrency();
+	volatile std::atomic<int> count(0);
+	std::vector<std::future<void>> future_vector;
+
+	int width = camera.image_width;
+	int height = camera.image_height;
+
+	// Loop for each core
+	std::cout << "Starting the render with multi-core, hold on to your hat" << std::endl;
+	while (cores--) {
+		Scene* scene = this;
+		future_vector.emplace_back(
+			std::async([=, &count, &scene]() { // = sign to capture all local variables as lvalues
+				while (true) {
+					// Increase the count and check for termination
+					int index = count++;
+					if (index >= max)
+						break;
+
+					// Grab our x and y positon
+					int x = index % width;
+					int y = index / width;
+
+					glm::dvec3 pixel_color(0, 0, 0);
+					for (int s = 0; s < camera.samples_per_pixel; ++s) {
+						// Do our uv
+						double u = (x + random_double()) / (width - 1);
+						double v = 1 - ((y + random_double()) / (height - 1));
+
+						// Shoot ray!
+						Ray r = camera.get_ray(u, v);
+						pixel_color += ray_color(r, bg, scene->world, camera.max_depth);
+					}
+
+					// Set pixel_color at index to pixel_color
+					framebuffer[index] = pixel_color;
+				}
+		}));
+	}
+#else
 	glm::dvec3* pixel = framebuffer; // Current pixel we write to
+
 	for (int j = camera.image_height - 1; j >= 0; --j) {
 		std::cout << "\rScanlines remaining: " << j << ' ' << std::flush;
 		// Progress logging?
@@ -68,12 +119,14 @@ void Scene::render_scene()
 				Ray r = camera.get_ray(u, v);
 				pixel_color += ray_color(r, bg, world, camera.max_depth);
 			}
+			//pixel_color = ray_color(camera.get_ray(i,j), bg, world, camera.max_depth);
 
 			// Write the final, super-sampled color to our framebuffer
 			// Dereference the memory adress and stride forward in memory
 			*(pixel++) = pixel_color;
 		}
 	}
+#endif
 }
 
 

@@ -33,7 +33,7 @@ public:
 	// Adds a cube to the world
 	void add_cube(const glm::dvec3& origin, double radius, shared_ptr<Material> m, HittableList& world_ref, glm::dvec3 rot);
 
-private:
+public:
 	HittableList world;
 	Camera camera;
 	glm::dvec3* framebuffer;
