@@ -8,9 +8,6 @@ Vector<xyz> samplesPoints
 
 Quad position & size
 generate samplePoints
-
-
-
 */
 
 class Camera {
@@ -19,10 +16,10 @@ public:
 
 		// Some screen constants
 		aspect_ratio = 1;
-		image_width = 500;
+		image_width = 250;
 		image_height = static_cast<int>(image_width / aspect_ratio);
-		samples_per_pixel = 300;
-		max_depth = 20;
+		samples_per_pixel = 100;
+		max_depth = 10;
 
 		// Initalize camera stuff
 		double viewport_height = 2.0;

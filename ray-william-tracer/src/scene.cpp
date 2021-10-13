@@ -7,6 +7,9 @@
 #include"sphere.h"
 #include"color.h"
 #include"light.h"
+#include"sdl_rendering.h"
+
+#include<glm/vec3.hpp>
 
 Scene::Scene() : camera(), world()
 {
@@ -77,6 +80,13 @@ void Scene::render_scene()
 void Scene::pixel_pass()
 {
 	// Pass for now
+	for (int i = 0; i < camera.image_width * camera.image_height; i++) {
+		glm::dvec3 color = framebuffer[i];
+
+		color = { 1 - color.r, 1 - color.g, 1 - color.b };
+
+		framebuffer[i] = color;
+	}
 }
 
 void Scene::write_render_to_file(const std::string& image_name)
@@ -94,6 +104,13 @@ void Scene::write_render_to_file(const std::string& image_name)
 	output_stream.close();
 	delete[] framebuffer;
 	framebuffer = nullptr;
+}
+
+void Scene::view_render_in_SDL() const
+{
+	// So basically, open a SDL window, take our framebuffer and draw each pixel, shouldn't be too hard - Daivd on 13th of October 2021
+	// famous last words
+	render_framebuffer_as_SDL(framebuffer, camera.image_width, camera.image_height);
 }
 
 glm::dvec3 Scene::ray_color(const Ray& ray, glm::dvec3 bg, const Hittable& world, int depth) const

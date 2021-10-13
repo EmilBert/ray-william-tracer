@@ -16,6 +16,9 @@ public:
 	void pixel_pass();
 	void write_render_to_file(const std::string& image_name);
 
+	/* Render with SDL */
+	void view_render_in_SDL() const;
+
 	/* Utility */
 	glm::dvec3 ray_color(const Ray& ray, glm::dvec3 bg, const Hittable& world, int depth) const;
 	
