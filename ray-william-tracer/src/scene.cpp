@@ -46,7 +46,7 @@ void Scene::setup_scene()
 	double eps = 1e-06;
 	double y = 1 - eps;
 	double z = -1;
-	double size = 0.1;
+	double size = 0.3;
 	double x = 0;
 	//add_quad(glm::dvec3(x + size, y, z - size), glm::dvec3(x - size, y, z - size), glm::dvec3(x + size, y, z + size), glm::dvec3(x - size, y, z + size), unlit);
 
@@ -201,16 +201,27 @@ glm::dvec3 Scene::ray_color(const Ray& ray, glm::dvec3 bg, const Hittable& world
 				glm::dvec3 randomLightPos = l->getRandomPosition();
 
 				// Shoot our ray to sample point
-				glm::dvec3 toLight = glm::normalize(randomLightPos - rec.p);
-				Ray pointToSamplePoint(rec.p, toLight);
+				
+				glm::dvec3 toLight = (randomLightPos - rec.p);
+				glm::dvec3 toLightNormalized = glm::normalize(toLight);
+				Ray pointToSamplePoint(rec.p, toLightNormalized);
 				hit_record light_record; // unused
 				if (world.hit(pointToSamplePoint, 0.001, infinity, light_record)) {
 					if (glm::distance(rec.p, light_record.p) < glm::distance(rec.p, randomLightPos)) {
 						obstructed++;
 					}
 				}
+
+				// If we are illuminateed, calculate our g term
+				if (obstructed != N) {
+					// G
+					// S is toLight
+					// G = cos(x)*cos(y) / glm::dot(toLight,toLight)
+					// x = toLight * normal_for_rec_p / glm::length(toLight)
+					// y = -toLight * normal_for_light / glm::legnth(toLight)
+				}
 			}
-			brightness = 1 - (obstructed / N);
+			brightness =  1 - (obstructed / N);
 
 			//int sampleObstructed = 0;
 
@@ -234,7 +245,7 @@ glm::dvec3 Scene::ray_color(const Ray& ray, glm::dvec3 bg, const Hittable& world
 		}
 
 
-		return glm::max(brightness,0.4) * attenuation * ray_color(scattered, bg, world, depth - 1);
+		return glm::max(brightness, 0.4) * attenuation * ray_color(scattered, bg, world, depth - 1);
 		//return (double)!hitSomething * attenuation * ray_color(scattered, bg, world, depth - 1);
 	}
 
