@@ -30,6 +30,7 @@ void Scene::setup_scene()
 	auto material_ground = make_shared<Lambertian>(glm::dvec3(1.0, 1.0, 1.0));
 	auto lambertian_red = make_shared<Lambertian>(glm::dvec3(1.0, 0, 0));
 	auto lambertian_green = make_shared<Lambertian>(glm::dvec3(0, 1.0, 0));
+	auto lambertian_blue = make_shared<Lambertian>(glm::dvec3(0, 0, 1));
 
 	const auto intensity = 4.0;
 	auto diffuse_light = make_shared<Diffuse_light>(glm::dvec3(intensity)); //Can be put to higher values if need be
@@ -41,14 +42,16 @@ void Scene::setup_scene()
 	add_room(glm::dvec3(0, 0, -1), 1, material_ground	, lambertian_red, lambertian_green);
 	//addCube(glm::dvec3(0.5, 0.5, -1.5), 0.2, dielectric, world, glm::dvec3(0, 20.0, 0));
 	//addCube(glm::dvec3(0, 0, -1), 0.1, diffuse_light, world, glm::dvec3(0, 0, 0));
-	world.add(make_shared<Sphere>(glm::dvec3(0.2, 0.0, -1.2), 0.3, lambertian_green));
-	world.add(make_shared<Sphere>(glm::dvec3(-0.35, 0.0, -1.2), 0.2, lambertian_red));
+	//world.add(make_shared<Sphere>(glm::dvec3(0.0, 0.0, -1.2), 0.3, lambertian_blue));
+	//world.add(make_shared<Sphere>(glm::dvec3(-0.35, 0.0, -1.2), 0.2, metal));
 	double eps = 1e-06;
 	double y = 1 - eps;
 	double z = -1;
 	double size = 0.3;
 	double x = 0;
 	//add_quad(glm::dvec3(x + size, y, z - size), glm::dvec3(x - size, y, z - size), glm::dvec3(x + size, y, z + size), glm::dvec3(x - size, y, z + size), unlit);
+
+	add_cube(glm::dvec3(0.0, -0.3, -1.0), 0.2, lambertian_blue, world, glm::dvec3(0, 20.0, 0));
 
 	std::vector<glm::dvec3> v = { glm::dvec3(x + size, y, z + size), glm::dvec3(x - size, y, z + size), glm::dvec3(x + size, y, z - size), glm::dvec3(x - size, y, z - size) };
 	world.add(make_shared<Light>(v, glm::dvec3(x, y, z)));
@@ -60,7 +63,7 @@ void Scene::setup_scene()
 
 void Scene::render_scene()
 {
-	glm::dvec3 bg = { 1.0, 1.0, 1.0 };
+	glm::dvec3 bg = { 0.4, 0.4, 0.4 };
 
 #if RAY_WILLIAM_MULTI_THREAD 
 	// Multi-threading additions
@@ -193,37 +196,42 @@ glm::dvec3 Scene::ray_color(const Ray& ray, glm::dvec3 bg, const Hittable& world
 		for (int i : this->world.light_indices) {
 			//// Get some data 
 			auto l = dynamic_cast<Light*>(this->world.objects[i].get());
+			l->intensity = 4.0;
 			
-			const int N = 4;
+			const int N = 6;
 			int obstructed = 0;
 
+			// Sample loop
+			double G = 0;
 			for (int i = 0; i < N; i++) {
 				glm::dvec3 randomLightPos = l->getRandomPosition();
 
-				// Shoot our ray to sample point
-				
-				glm::dvec3 toLight = (randomLightPos - rec.p);
+				bool seenByLight = true; // flag
+				glm::dvec3 toLight = (randomLightPos - rec.p); // vector pointing to our randomLightPos
 				glm::dvec3 toLightNormalized = glm::normalize(toLight);
+
+				// Shoot our ray to sample point
 				Ray pointToSamplePoint(rec.p, toLightNormalized);
 				hit_record light_record; // unused
 				if (world.hit(pointToSamplePoint, 0.001, infinity, light_record)) {
 					if (glm::distance(rec.p, light_record.p) < glm::distance(rec.p, randomLightPos)) {
 						obstructed++;
+						seenByLight = false;
 					}
 				}
-
-				// If we are illuminateed, calculate our g term
-				if (obstructed != N) {
-					// G
-					// S is toLight
-					// G = cos(x)*cos(y) / glm::dot(toLight,toLight)
-					// x = toLight * normal_for_rec_p / glm::length(toLight)
-					// y = -toLight * normal_for_light / glm::legnth(toLight)
+				
+				if (seenByLight) {
+					double diffuse = glm::max(glm::dot(rec.normal, toLightNormalized), 0.0);
+					//double cosThetaIn = glm::dot(toLightNormalized, rec.normal);
+					//double cosThetaL = glm::dot(-toLightNormalized, l->t0.normal);
+					G += (diffuse);
 				}
+				
 			}
-			brightness =  1 - (obstructed / N);
+			//brightness = 1 - (obstructed / N);
+			brightness = G/N;
 
-			//int sampleObstructed = 0;
+			//int sampleObstructed = 0
 
 			//// Check for every sample point in light source
 			//for (glm::dvec3 sp : l->get_sample_points()) {
@@ -245,7 +253,7 @@ glm::dvec3 Scene::ray_color(const Ray& ray, glm::dvec3 bg, const Hittable& world
 		}
 
 
-		return glm::max(brightness, 0.4) * attenuation * ray_color(scattered, bg, world, depth - 1);
+		return glm::max(brightness, 0.3) * attenuation * ray_color(scattered, bg, world, depth - 1);
 		//return (double)!hitSomething * attenuation * ray_color(scattered, bg, world, depth - 1);
 	}
 

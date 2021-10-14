@@ -21,8 +21,9 @@ public:
 
 	// Virtual implementation of hit
 	virtual bool hit(const Ray& ray, double t_min, double t_max, hit_record& rec) const override;
+	
 
-private:
+public:
 	glm::dvec3 v0, v1, v2; 
 	glm::dvec3 normal;
 	shared_ptr<Material> mat_ptr;

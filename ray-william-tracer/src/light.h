@@ -17,7 +17,8 @@ public:
 	const std::vector<glm::dvec3>& get_sample_points() { return sample_points; }
 	glm::dvec3 position;
 
-private:
+public:
+	double intensity = 1.0;
 	std::vector<glm::dvec3> sample_points; // Points ON the quad
 	std::vector<glm::dvec3> vertices;
 	Triangle t0,t1;
