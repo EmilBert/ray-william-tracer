@@ -15,8 +15,10 @@
 
 Light::Light(std::vector<glm::dvec3> vertices, glm::dvec3 p) : position(p), 
 	t0({ vertices[0], vertices[1], vertices[2] }, { 0,0,0 }, nullptr),
-	t1({ vertices[3], vertices[1], vertices[2] }, { 0,0,0 }, nullptr)
+	t1({ vertices[3], vertices[1], vertices[2] }, { 0,0,0 }, nullptr),
+	vertices(vertices)
 {
+
 	// generate samplePoints
 	double const eps = 0.1;
 	int numberOfSamples = 20;
@@ -44,4 +46,16 @@ Light::Light(std::vector<glm::dvec3> vertices, glm::dvec3 p) : position(p),
 bool Light::hit(const Ray& ray, double t_min, double t_max, hit_record& rec) const
 {
 	return t0.hit(ray, t_min, t_max, rec) || t1.hit(ray, t_min, t_max, rec);
+}
+
+// Get random position inside Light Quad
+glm::dvec3 Light::getRandomPosition() const
+{
+	double d1 = random_double();
+	double d2 = random_double();
+
+	glm::dvec3 v0v1 = (vertices[1] - vertices[0]);
+	glm::dvec3 v0v2 = (vertices[2] - vertices[0]);
+
+	return vertices[0] + d1 * v0v1 + d2 * v0v2;
 }

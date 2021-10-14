@@ -9,7 +9,9 @@
 #include"light.h"
 #include"sdl_rendering.h"
 
+#define NOMINMAX
 #include<glm/vec3.hpp>
+#include<glm/common.hpp>
 #include<atomic>
 #include<thread>
 #include<vector>
@@ -44,7 +46,7 @@ void Scene::setup_scene()
 	double eps = 1e-06;
 	double y = 1 - eps;
 	double z = -1;
-	double size = 0.40;
+	double size = 0.1;
 	double x = 0;
 	//add_quad(glm::dvec3(x + size, y, z - size), glm::dvec3(x - size, y, z - size), glm::dvec3(x + size, y, z + size), glm::dvec3(x - size, y, z + size), unlit);
 
@@ -187,28 +189,52 @@ glm::dvec3 Scene::ray_color(const Ray& ray, glm::dvec3 bg, const Hittable& world
 		rec.mat_ptr->scatter(ray, rec, attenuation, scattered);
 
 		// Check if hit point is illuminated or shadowed?
-		bool hitSomething = false;
+		double brightness = 0.0;
 		for (int i : this->world.light_indices) {
-			// Get some data 
+			//// Get some data 
 			auto l = dynamic_cast<Light*>(this->world.objects[i].get());
+			
+			const int N = 4;
+			int obstructed = 0;
 
-			glm::dvec3 position = l->position;
-			glm::dvec3 toLight = glm::normalize(position - rec.p);
+			for (int i = 0; i < N; i++) {
+				glm::dvec3 randomLightPos = l->getRandomPosition();
 
-			// Shoot our ray, TOOD: do it for each sample point for light
-			Ray pointToLight(rec.p, toLight);
-			hit_record light_record; // unused
-
-			// Shoot ray and see if we hit something
-			if (world.hit(pointToLight, 0.001, infinity, light_record)) {
-				if (glm::distance(rec.p, light_record.p) < glm::distance(rec.p, position)) {
-					// Object in front of us
-					hitSomething = true;
+				// Shoot our ray to sample point
+				glm::dvec3 toLight = glm::normalize(randomLightPos - rec.p);
+				Ray pointToSamplePoint(rec.p, toLight);
+				hit_record light_record; // unused
+				if (world.hit(pointToSamplePoint, 0.001, infinity, light_record)) {
+					if (glm::distance(rec.p, light_record.p) < glm::distance(rec.p, randomLightPos)) {
+						obstructed++;
+					}
 				}
 			}
+			brightness = 1 - (obstructed / N);
+
+			//int sampleObstructed = 0;
+
+			//// Check for every sample point in light source
+			//for (glm::dvec3 sp : l->get_sample_points()) {
+			//	glm::dvec3 position = sp;
+			//	glm::dvec3 toLight = glm::normalize(position - rec.p);
+
+			//	// Shoot our ray to sample point
+			//	Ray pointToSamplePoint(rec.p, toLight);
+			//	hit_record light_record; // unused
+
+			//	// Shoot ray and see if we hit something
+			//	if (world.hit(pointToSamplePoint, 0.001, infinity, light_record)) {
+			//		if (glm::distance(rec.p, light_record.p) < glm::distance(rec.p, position)) {
+			//			sampleObstructed++;
+			//		}
+			//	}
+			//}
+			//brightness = 1 - 0.8*(double(sampleObstructed) / l->get_sample_points().size());
 		}
 
-		return (hitSomething ? 0.5 : 1.0) * attenuation * ray_color(scattered, bg, world, depth - 1);
+
+		return glm::max(brightness,0.4) * attenuation * ray_color(scattered, bg, world, depth - 1);
 		//return (double)!hitSomething * attenuation * ray_color(scattered, bg, world, depth - 1);
 	}
 

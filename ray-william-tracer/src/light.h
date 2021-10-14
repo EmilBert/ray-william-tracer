@@ -12,11 +12,13 @@ public:
 
 	bool hit(const Ray& ray, double t_min, double t_max, hit_record& rec) const override;
 	bool isLight() override { return true; }
+	glm::dvec3 getRandomPosition() const;
 
 	const std::vector<glm::dvec3>& get_sample_points() { return sample_points; }
 	glm::dvec3 position;
 
 private:
 	std::vector<glm::dvec3> sample_points; // Points ON the quad
+	std::vector<glm::dvec3> vertices;
 	Triangle t0,t1;
 };
