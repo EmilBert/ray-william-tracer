@@ -40,7 +40,7 @@ void Scene::setup_scene()
 	add_mark_room(glm::dvec3(0, 0, -1), 1, material_ground, lambertian_red, lambertian_green, lambertian_blue, lambertian_red, lambertian_green, lambertian_blue);
 	//addCube(glm::dvec3(0.5, 0.5, -1.5), 0.2, dielectric, world, glm::dvec3(0, 20.0, 0));
 	//addCube(glm::dvec3(0, 0, -1), 0.1, diffuse_light, world, glm::dvec3(0, 0, 0));
-	world.add(make_shared<Sphere>(glm::dvec3(0.0, 0.0, -1.2), 0.35, lambertian_blue));
+	world.add(make_shared<Sphere>(glm::dvec3(0.0, 0.0, -1.2), 0.35, metal));
 	//world.add(make_shared<Sphere>(glm::dvec3(-0.35, 0.0, -1.2), 0.2, metal));
 	double eps = 1e-06;
 	double y = 1 - eps;
@@ -51,7 +51,7 @@ void Scene::setup_scene()
 
 	//add_cube(glm::dvec3(0.0, -0.3, -1.0), 0.2, lambertian_blue, world, glm::dvec3(0, 20.0, 0));
 	std::vector<glm::dvec3> v = { glm::dvec3(x + size, y, z + size), glm::dvec3(x - size, y, z + size), glm::dvec3(x + size, y, z - size), glm::dvec3(x - size, y, z - size) };
-	world.add(make_shared<Light>(v, glm::dvec3(x, y, z), 3.0));
+	world.add(make_shared<Light>(v, glm::dvec3(x, y, z), 2.0));
 
 	//world.add(make_shared<Triangle>(someData, glm::dvec3(0,0,0), 0, lambertian));
 	//world.add(make_shared<Quad>(glm::dvec3(0, 0, -2), glm::dvec3(0, 2, -2), glm::dvec3(2, 0, -2), glm::dvec3(2, 2, -2), lambertian));
@@ -281,7 +281,7 @@ void Scene::add_cornell_box(const glm::dvec3& origin, double radius, shared_ptr<
 
 	add_quad(v4, v0, v5, v1, left); // left
 	add_quad(v0+translation, v3+translation, v1+translation, v2+translation, m); // front wall
-	add_quad(v3, v7, v2, v6, right);  // h�ger v�ggen
+	add_quad(v3, v7, v2, v6, right);  // right wall
 	add_quad(v7,v4,v6,v5, m); // <- backwall
 	add_quad(v4, v7, v0, v3, m); // golvet
 	add_quad(v1, v2, v5, v6, m); // taket
@@ -337,8 +337,8 @@ void Scene::add_mark_room(const glm::dvec3& origin, double radius, shared_ptr<Ma
 	add_quad(v1 - y, v2 - y, v1 + y, v2 + y, wall_2); // wall_2
 	add_quad(v2 - y, v3 - y, v2 + y, v3 + y, wall_3); // wall_3
 	add_quad(v3 - y, v4 - y, v3 + y, v4 + y, wall_4); // wall_4
-	add_quad(v4 - y, v5 - y, v4 + y, v5 + y, wall_5); // wall_5
-	add_quad(v5 - y, v0 - y, v5 + y, v0 + y, wall_6); // wall_6
+	//add_quad(v4 - y, v5 - y, v4 + y, v5 + y, wall_5); // wall_5
+	//add_quad(v5 - y, v0 - y, v5 + y, v0 + y, wall_6); // wall_6
 
 }
 

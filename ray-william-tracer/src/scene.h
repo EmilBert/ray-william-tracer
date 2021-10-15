@@ -53,6 +53,6 @@ public:
 	Camera camera;
 	int min_depth = 8;
 	glm::dvec3* framebuffer;
-	glm::dvec3 bg = { 0.4, 0.4, 0.4 };
+	glm::dvec3 bg = { 0.8, 0.8, 0.8 };
 
 };
