@@ -22,6 +22,9 @@ public:
 	/* Utility */
 	glm::dvec3 ray_color(const Ray& ray, glm::dvec3 bg, const Hittable& world, int depth) const;
 	
+	/* Returns the factor G for hit_record */
+	double light_ray_pass(hit_record& rec) const;
+
 	// Adds a quad to the world
 	void add_quad(const glm::dvec3& bottomLeft, const glm::dvec3& bottomRight, const glm::dvec3& topLeft, const glm::dvec3& topRight, shared_ptr<Material> m);
 
@@ -48,5 +51,8 @@ public:
 public:
 	HittableList world;
 	Camera camera;
+	int min_depth = 8;
 	glm::dvec3* framebuffer;
+	glm::dvec3 bg = { 0.4, 0.4, 0.4 };
+
 };

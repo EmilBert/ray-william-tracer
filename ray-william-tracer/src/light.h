@@ -8,7 +8,7 @@
 class Light : public Hittable {
 public:
 	// Assume non-skewed quads only!
-	Light(std::vector<glm::dvec3> vertices, glm::dvec3 p); 
+	Light(std::vector<glm::dvec3> vertices, glm::dvec3 p, double intensity = 1.0); 
 
 	bool hit(const Ray& ray, double t_min, double t_max, hit_record& rec) const override;
 	bool isLight() override { return true; }
@@ -21,5 +21,5 @@ public:
 	double intensity = 1.0;
 	std::vector<glm::dvec3> sample_points; // Points ON the quad
 	std::vector<glm::dvec3> vertices;
-	Triangle t0,t1;
+	Triangle t0, t1;
 };
