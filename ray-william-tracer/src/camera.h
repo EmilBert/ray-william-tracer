@@ -17,8 +17,8 @@ public:
 		aspect_ratio = 1;
 		image_width = 450;
 		image_height = static_cast<int>(image_width / aspect_ratio);
-		samples_per_pixel = 200;
-		max_depth = 25;
+		samples_per_pixel = 100;
+		max_depth = 15;
 
 		// Initalize camera stuff
 		double viewport_height = 2.0;

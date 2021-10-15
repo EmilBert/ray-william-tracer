@@ -113,20 +113,3 @@ private:
         return r0 + (1 - r0) * pow((1 - cosine), 5);
     }
 };
-
-//  Light Sorces
-class Diffuse_light : public Material {
-public:
-    Diffuse_light(glm::dvec3 c) : emit(c) {}
-    virtual bool scatter(const Ray& ray_in, const hit_record& rec, glm::dvec3& attenuation, Ray& scattered
-    ) const override {
-        return false;
-    }
-    
-    virtual glm::dvec3 emitted(const glm::dvec3& p) const override {
-        return emit;
-    }
-
-public:
-    glm::dvec3 emit;
-};
