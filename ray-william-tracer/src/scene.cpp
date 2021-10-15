@@ -40,8 +40,9 @@ void Scene::setup_scene()
 	add_mark_room(glm::dvec3(0, 0, -1), 1, material_ground, lambertian_red, lambertian_green, lambertian_blue, lambertian_red, lambertian_green, lambertian_blue);
 	//addCube(glm::dvec3(0.5, 0.5, -1.5), 0.2, dielectric, world, glm::dvec3(0, 20.0, 0));
 	//addCube(glm::dvec3(0, 0, -1), 0.1, diffuse_light, world, glm::dvec3(0, 0, 0));
-	world.add(make_shared<Sphere>(glm::dvec3(0.0, 0.0, -1.2), 0.35, metal));
+	world.add(make_shared<Sphere>(glm::dvec3(-0.5, 0.0, -1.2), 0.35, metal));
 	//world.add(make_shared<Sphere>(glm::dvec3(-0.35, 0.0, -1.2), 0.2, metal));
+
 	double eps = 1e-06;
 	double y = 1 - eps;
 	double z = -1;
@@ -49,9 +50,9 @@ void Scene::setup_scene()
 	double x = 0;
 	//add_quad(glm::dvec3(x + size, y, z - size), glm::dvec3(x - size, y, z - size), glm::dvec3(x + size, y, z + size), glm::dvec3(x - size, y, z + size), unlit);
 
-	//add_cube(glm::dvec3(0.0, -0.3, -1.0), 0.2, lambertian_blue, world, glm::dvec3(0, 20.0, 0));
+	add_cube(glm::dvec3(0.5, -0.3, -1.0), 0.2, lambertian_blue, world, glm::dvec3(0, 20.0, 0));
 	std::vector<glm::dvec3> v = { glm::dvec3(x + size, y, z + size), glm::dvec3(x - size, y, z + size), glm::dvec3(x + size, y, z - size), glm::dvec3(x - size, y, z - size) };
-	world.add(make_shared<Light>(v, glm::dvec3(x, y, z), 2.0));
+	world.add(make_shared<Light>(v, glm::dvec3(x, y, z), 2.0, glm::dvec3{ 1.0, 0.15, 0.15 }));
 
 	//world.add(make_shared<Triangle>(someData, glm::dvec3(0,0,0), 0, lambertian));
 	//world.add(make_shared<Quad>(glm::dvec3(0, 0, -2), glm::dvec3(0, 2, -2), glm::dvec3(2, 0, -2), glm::dvec3(2, 2, -2), lambertian));
@@ -174,14 +175,14 @@ glm::dvec3 Scene::ray_color(const Ray& ray, glm::dvec3 bg, const Hittable& world
 		glm::dvec3 attenuation;
 
 		if ((*rec.hittable_ptr).isLight()) {
-			return glm::dvec3(1, 1, 1); // TODO: return light color?
+			return dynamic_cast<Light*>(rec.hittable_ptr.get())->light_color;
 		}
 
 		// Mateiral scattering
 		rec.mat_ptr->scatter(ray, rec, attenuation, scattered);
 
 		// Light contribution
-		double brightness = light_ray_pass(rec);
+		glm::dvec3 brightness = light_ray_pass(rec);
 		attenuation *= glm::max(brightness, MIN_LIGHT_INTENSITY) * attenuation;
 
 		// Russian roulette if we exceed min depth
@@ -205,18 +206,19 @@ glm::dvec3 Scene::ray_color(const Ray& ray, glm::dvec3 bg, const Hittable& world
 	return bg; 
 }
 
-double Scene::light_ray_pass(hit_record& rec) const
+glm::dvec3 Scene::light_ray_pass(hit_record& rec) const
 {
-	double brightness = 0.0;
+	// double brightness = 0.0;
+	glm::dvec3 brightness = { 0,0,0 };
 	for (int i : this->world.light_indices) {
 		// get the light
 		auto l = dynamic_cast<Light*>(this->world.objects[i].get());
 
 		const int N = 6;
-		double G = 0;
+		glm::dvec3 G = { 0,0,0 };
 
-		// For
 		for (int i = 0; i < N; i++) {
+			// For each sample point shoot a ray to a random point at the light
 			glm::dvec3 randomLightPos = l->getRandomPosition();
 
 			bool seenByLight = true; // flag
@@ -236,11 +238,11 @@ double Scene::light_ray_pass(hit_record& rec) const
 				// From mark's lecture, somehow works, what's the difference from normal diffuse shading?
 				double cosThetaIn = glm::dot(toLightNormalized, rec.normal);
 				double cosThetaL = glm::dot(-toLightNormalized, l->t0.normal);
-				G += ((cosThetaIn * cosThetaL) / glm::length(toLight)) * l->intensity;
+				G += l->light_color * ((cosThetaIn * cosThetaL) / glm::length(toLight)) * l->intensity;
 			}
 		}
 		// We take a total of N samples pointing to the light
-		brightness += G / N;
+		brightness += G / (double)N;
 	}
 
 	return brightness;

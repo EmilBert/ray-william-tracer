@@ -13,11 +13,13 @@
 	v2 ------ v3
 */
 
-Light::Light(std::vector<glm::dvec3> vertices, glm::dvec3 p, double intensity) : position(p),
+Light::Light(std::vector<glm::dvec3> vertices, glm::dvec3 p, double intensity, glm::dvec3 light_color) : 
+	position(p),
 	t0({ vertices[0], vertices[1], vertices[2] }, { 0,0,0 }, nullptr),
 	t1({ vertices[3], vertices[1], vertices[2] }, { 0,0,0 }, nullptr),
 	vertices(vertices),
-	intensity(intensity)
+	intensity(intensity),
+	light_color(light_color)
 {
 
 	// generate samplePoints
