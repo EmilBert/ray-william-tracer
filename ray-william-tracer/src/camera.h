@@ -18,7 +18,6 @@ public:
 		image_width = 450;
 		image_height = static_cast<int>(image_width / aspect_ratio);
 		samples_per_pixel = 100;
-		max_depth = 15;
 
 		// Initalize camera stuff
 		double viewport_height = 2.0;
@@ -40,7 +39,6 @@ public:
 	double image_width;
 	double image_height;
 	double samples_per_pixel;
-	double max_depth;
 
 private:
 	glm::dvec3 origin;
