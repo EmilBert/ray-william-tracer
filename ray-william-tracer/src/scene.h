@@ -29,9 +29,21 @@ public:
 	void add_quad(const glm::dvec3& bottomLeft, const glm::dvec3& bottomRight, const glm::dvec3& topLeft, const glm::dvec3& topRight, shared_ptr<Material> m);
 
 	// Adds a room to the world
-	void add_room(const glm::dvec3& origin, double radius,
+	void add_cornell_box(const glm::dvec3& origin, double radius,
 		shared_ptr<Material> m,
-		shared_ptr<Material> left, shared_ptr<Material> right);
+		shared_ptr<Material> left,
+		shared_ptr<Material> right
+);
+
+	void add_mark_room(const glm::dvec3& origin, double radius,
+		shared_ptr<Material> m,
+		shared_ptr<Material> wall_1,
+		shared_ptr<Material> wall_2,
+		shared_ptr<Material> wall_3,
+		shared_ptr<Material> wall_4,
+		shared_ptr<Material> wall_5,
+		shared_ptr<Material> wall_6
+	);
 
 	// Adds a cube to the world
 	void add_cube(const glm::dvec3& origin, double radius, shared_ptr<Material> m, HittableList& world_ref, glm::dvec3 rot);
