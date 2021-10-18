@@ -15,9 +15,9 @@ public:
 	Camera() {
 		// Some screen constants
 		aspect_ratio = 16/9;
-		image_width = 600;
+		image_width = 500;
 		image_height = static_cast<int>(image_width / aspect_ratio);
-		samples_per_pixel = 200;
+		samples_per_pixel = 100;
 
 		// Initalize camera stuff
 		double viewport_height = 2.0;

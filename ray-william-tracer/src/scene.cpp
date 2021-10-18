@@ -37,7 +37,7 @@ void Scene::setup_scene()
 	auto metal = make_shared<Metal>(glm::dvec3(1.0, 1.0, 1.0), 0);
 	auto unlit = make_shared<Unlit>(glm::dvec3(1.0, 0.0, 0.0));
 
-	add_mark_room(glm::dvec3(0, 0, -1), 1, material_ground, lambertian_red, lambertian_green, lambertian_blue, lambertian_red, lambertian_green, lambertian_blue);
+	add_mark_room(glm::dvec3(0, 0, -1), 1, material_ground, lambertian_red, lambertian_green, metal, lambertian_red, lambertian_green, lambertian_blue);
 	//addCube(glm::dvec3(0.5, 0.5, -1.5), 0.2, dielectric, world, glm::dvec3(0, 20.0, 0));
 	//addCube(glm::dvec3(0, 0, -1), 0.1, diffuse_light, world, glm::dvec3(0, 0, 0));
 	world.add(make_shared<Sphere>(glm::dvec3(-0.5, 0.0, -1.2), 0.35, metal));
@@ -46,13 +46,13 @@ void Scene::setup_scene()
 	double eps = 1e-06;
 	double y = 1 - eps;
 	double z = -1;
-	double size = 0.3;
+	double size = 0.1;
 	double x = 0;
 	//add_quad(glm::dvec3(x + size, y, z - size), glm::dvec3(x - size, y, z - size), glm::dvec3(x + size, y, z + size), glm::dvec3(x - size, y, z + size), unlit);
 
 	add_cube(glm::dvec3(0.5, -0.3, -1.0), 0.2, lambertian_blue, world, glm::dvec3(0, 20.0, 0));
 	std::vector<glm::dvec3> v = { glm::dvec3(x + size, y, z + size), glm::dvec3(x - size, y, z + size), glm::dvec3(x + size, y, z - size), glm::dvec3(x - size, y, z - size) };
-	world.add(make_shared<Light>(v, glm::dvec3(x, y, z), 2.0, glm::dvec3{ 1.0, 0.15, 0.15 }));
+	world.add(make_shared<Light>(v, glm::dvec3(x, y, z), 2.0, glm::dvec3{ 1.5, 1.5, 1.5 }));
 
 	//world.add(make_shared<Triangle>(someData, glm::dvec3(0,0,0), 0, lambertian));
 	//world.add(make_shared<Quad>(glm::dvec3(0, 0, -2), glm::dvec3(0, 2, -2), glm::dvec3(2, 0, -2), glm::dvec3(2, 2, -2), lambertian));
@@ -236,9 +236,10 @@ glm::dvec3 Scene::light_ray_pass(hit_record& rec) const
 
 			if (seenByLight) {
 				// From mark's lecture, somehow works, what's the difference from normal diffuse shading?
-				double cosThetaIn = glm::dot(toLightNormalized, rec.normal);
+				/*double cosThetaIn = glm::dot(toLightNormalized, rec.normal);
 				double cosThetaL = glm::dot(-toLightNormalized, l->t0.normal);
-				G += l->light_color * ((cosThetaIn * cosThetaL) / glm::length(toLight)) * l->intensity;
+				G += l->light_color * ((cosThetaIn * cosThetaL) / glm::length(toLight)) * l->intensity;*/
+				G += rec.mat_ptr->light_pass(randomLightPos, rec, l);
 			}
 		}
 		// We take a total of N samples pointing to the light
@@ -339,8 +340,8 @@ void Scene::add_mark_room(const glm::dvec3& origin, double radius, shared_ptr<Ma
 	add_quad(v1 - y, v2 - y, v1 + y, v2 + y, wall_2); // wall_2
 	add_quad(v2 - y, v3 - y, v2 + y, v3 + y, wall_3); // wall_3
 	add_quad(v3 - y, v4 - y, v3 + y, v4 + y, wall_4); // wall_4
-	//add_quad(v4 - y, v5 - y, v4 + y, v5 + y, wall_5); // wall_5
-	//add_quad(v5 - y, v0 - y, v5 + y, v0 + y, wall_6); // wall_6
+	add_quad(v4 - y, v5 - y, v4 + y, v5 + y, wall_5); // wall_5
+	add_quad(v5 - y, v0 - y, v5 + y, v0 + y, wall_6); // wall_6
 
 }
 

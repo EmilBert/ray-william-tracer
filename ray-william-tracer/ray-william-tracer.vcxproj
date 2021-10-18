@@ -149,6 +149,7 @@
     <ClCompile Include="src\hittable_list.cpp" />
     <ClCompile Include="src\light.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\material.cpp" />
     <ClCompile Include="src\scene.cpp" />
     <ClCompile Include="src\sdl_rendering.cpp" />
     <ClCompile Include="src\triangle.cpp" />
