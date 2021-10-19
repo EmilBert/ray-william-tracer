@@ -15,16 +15,16 @@ public:
 	Camera() {
 		// Some screen constants
 		aspect_ratio = 16/9;
-		image_width = 300;
+		image_width = 450; 
 		image_height = static_cast<int>(image_width / aspect_ratio);
-		samples_per_pixel = 30;
+		samples_per_pixel = 200;
 
 		// Initalize camera stuff
 		double viewport_height = 2.0;
 		double viewport_width = aspect_ratio * viewport_height;
 		double focal_length = 1.0;
 
-		origin = glm::dvec3(0, 0, -0.15);
+		origin = glm::dvec3(0, 0, 0);
 		horizontal = glm::dvec3(viewport_width, 0, 0);
 		vertical = glm::dvec3(0, viewport_height, 0);
 		lower_left_corner = origin - horizontal / 2.0 - vertical / 2.0 - glm::dvec3(0, 0, focal_length);

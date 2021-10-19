@@ -150,6 +150,7 @@
     <ClCompile Include="src\light.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\material.cpp" />
+    <ClCompile Include="src\plane.cpp" />
     <ClCompile Include="src\scene.cpp" />
     <ClCompile Include="src\sdl_rendering.cpp" />
     <ClCompile Include="src\triangle.cpp" />
@@ -162,6 +163,7 @@
     <ClInclude Include="src\hit_record.h" />
     <ClInclude Include="src\light.h" />
     <ClInclude Include="src\material.h" />
+    <ClInclude Include="src\plane.h" />
     <ClInclude Include="src\quad.h" />
     <ClInclude Include="src\ray.h" />
     <ClInclude Include="src\scene.h" />

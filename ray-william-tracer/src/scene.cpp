@@ -8,6 +8,7 @@
 #include"color.h"
 #include"light.h"
 #include"sdl_rendering.h"
+#include"plane.h"
 
 #define NOMINMAX
 #include<glm/vec3.hpp>
@@ -38,13 +39,26 @@ void Scene::setup_scene()
 	auto metal = make_shared<Metal>(glm::dvec3(1.0, 1.0, 1.0), 0);
 	auto unlit = make_shared<Unlit>(glm::dvec3(1.0, 0.0, 0.0));
 
+	// Floor
+	world.add(std::make_shared<Plane>(glm::dvec3(0, -1, 0), glm::dvec3(0, 1, 0), material_ground ));
+	// Roof
+	world.add(std::make_shared<Plane>(glm::dvec3(0, 1, 0), glm::dvec3(0, -1, 0), material_ground ));
+	// Left wall
+	world.add(std::make_shared<Plane>(glm::dvec3(-1, 0, 0), glm::dvec3(1, 0, 0), lambertian_green ));
+	// Right wall
+	world.add(std::make_shared<Plane>(glm::dvec3(1, 0, 0), glm::dvec3(-1, 0, 0), lambertian_red ));
+	// Front wall
+	world.add(std::make_shared<Plane>(glm::dvec3(0, 0, -2), glm::dvec3(0, 0, 1), metal ));
+	// Back wall
+	world.add(std::make_shared<Plane>(glm::dvec3(0, 0, 0), glm::dvec3(0, 0, -1), metal ));
+
 	//add_mark_room(glm::dvec3(0, 0, -1), 1, material_ground, lambertian_red, lambertian_green, lambertian_blue, lambertian_red, lambertian_green, lambertian_blue);
 	//add_mark_room(glm::dvec3(0, 0, -1), 1, material_ground, material_ground, material_ground, material_ground, material_ground, material_ground, material_ground);
-	add_cornell_box(glm::dvec3(0, 0, -1), 1, material_ground, material_ground, material_ground);
+	//add_cornell_box(glm::dvec3(0, 0, -1), 1, material_ground, material_ground, material_ground);
 	//addCube(glm::dvec3(0.5, 0.5, -1.5), 0.2, dielectric, world, glm::dvec3(0, 20.0, 0));
 	//addCube(glm::dvec3(0, 0, -1), 0.1, diffuse_light, world, glm::dvec3(0, 0, 0));
 	//world.add(make_shared<Sphere>(glm::dvec3(-0.5, 0.0, -1.2), 0.35, lambertian));
-	//world.add(make_shared<Sphere>(glm::dvec3(0, 0.0, -1.2), 0.2, metal));
+	world.add(make_shared<Sphere>(glm::dvec3(-0.6, 0.0, -1.2), 0.2, lambertian_blue));
 
 	double eps = 1e-06;
 	double y = 1 - eps;
@@ -55,7 +69,7 @@ void Scene::setup_scene()
 
 	//add_cube(glm::dvec3(0.15, -0.5, -1.5), 0.2, lambertian_blue, world, glm::dvec3(0, 0, 0));
 	std::vector<glm::dvec3> v = { glm::dvec3(x + size, y, z + size), glm::dvec3(x - size, y, z + size), glm::dvec3(x + size, y, z - size), glm::dvec3(x - size, y, z - size) };
-	world.add(make_shared<Light>(v, glm::dvec3(x, y, z), 3.0, glm::dvec3{ 1.5, 1.5, 1.5 }));
+	world.add(make_shared<Light>(v, glm::dvec3(x, y, z), 6.0, glm::dvec3{ 1, 1, 1 }));
 
 	//world.add(make_shared<Triangle>(someData, glm::dvec3(0,0,0), 0, lambertian));
 	//world.add(make_shared<Quad>(glm::dvec3(0, 0, -2), glm::dvec3(0, 2, -2), glm::dvec3(2, 0, -2), glm::dvec3(2, 2, -2), lambertian));
