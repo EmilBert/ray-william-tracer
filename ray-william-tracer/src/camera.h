@@ -12,30 +12,35 @@ generate samplePoints
 
 class Camera {
 public:
-	Camera() {
-		// Some screen constants
-		aspect_ratio = 16/9;
-		image_width = 450; 
-		image_height = static_cast<int>(image_width / aspect_ratio);
-		samples_per_pixel = 200;
-
+	Camera(glm::dvec3 lookfrom, glm::dvec3 lookat, glm::dvec3 up, double vfov, double aspect_ratio) {
 		// Initalize camera stuff
-		double viewport_height = 2.0;
+		double theta = glm::radians(vfov);
+		double h = glm::tan(theta / 2);
+		double viewport_height = 2.0 * h;
 		double viewport_width = aspect_ratio * viewport_height;
 		double focal_length = 1.0;
 
-		origin = glm::dvec3(0, 0, 0);
-		horizontal = glm::dvec3(viewport_width, 0, 0);
-		vertical = glm::dvec3(0, viewport_height, 0);
-		lower_left_corner = origin - horizontal / 2.0 - vertical / 2.0 - glm::dvec3(0, 0, focal_length);
+		auto w = glm::normalize(lookfrom - lookat); // Viewing direction
+		auto u = glm::normalize(glm::cross(up, w)); // Cross our viewing direction and up vector
+		auto v = glm::cross(w, u);
+
+		// Some screen constants
+		image_width = 400; 
+		image_height = static_cast<int>(image_width / aspect_ratio);
+		samples_per_pixel = 200;
+
+		// Positionals
+		origin = lookfrom;
+		horizontal = viewport_width * u;
+		vertical = viewport_height * v;
+		lower_left_corner = origin - horizontal / 2.0 - vertical / 2.0 - w;
 	}
 
 	Ray get_ray(double u, double v) const {
-		return Ray(origin, glm::normalize(lower_left_corner + u * horizontal + v * vertical - origin));
+		return Ray(origin, lower_left_corner + u * horizontal + v * vertical - origin);
 	}
 
 public:
-	double aspect_ratio;
 	double image_width;
 	double image_height;
 	double samples_per_pixel;

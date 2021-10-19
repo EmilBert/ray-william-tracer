@@ -22,7 +22,7 @@
 #define RAY_WILLIAM_MULTI_THREAD true
 #define MIN_LIGHT_INTENSITY 0.2
 
-Scene::Scene() : camera(), world()
+Scene::Scene() : camera(glm::dvec3(0,0.3,0), glm::dvec3(0,0,-1), glm::dvec3(0,1,0), 85, 12.0/9.0), world()
 {
 	framebuffer = new glm::dvec3[camera.image_width * camera.image_height];
 }
@@ -48,9 +48,9 @@ void Scene::setup_scene()
 	// Right wall
 	world.add(std::make_shared<Plane>(glm::dvec3(1, 0, 0), glm::dvec3(-1, 0, 0), lambertian_red ));
 	// Front wall
-	world.add(std::make_shared<Plane>(glm::dvec3(0, 0, -2), glm::dvec3(0, 0, 1), metal ));
+	world.add(std::make_shared<Plane>(glm::dvec3(0, 0, -2), glm::dvec3(0, 0, 1), material_ground ));
 	// Back wall
-	world.add(std::make_shared<Plane>(glm::dvec3(0, 0, 0), glm::dvec3(0, 0, -1), metal ));
+	world.add(std::make_shared<Plane>(glm::dvec3(0, 0, 0), glm::dvec3(0, 0, -1), lambertian_red ));
 
 	//add_mark_room(glm::dvec3(0, 0, -1), 1, material_ground, lambertian_red, lambertian_green, lambertian_blue, lambertian_red, lambertian_green, lambertian_blue);
 	//add_mark_room(glm::dvec3(0, 0, -1), 1, material_ground, material_ground, material_ground, material_ground, material_ground, material_ground, material_ground);
@@ -69,7 +69,7 @@ void Scene::setup_scene()
 
 	//add_cube(glm::dvec3(0.15, -0.5, -1.5), 0.2, lambertian_blue, world, glm::dvec3(0, 0, 0));
 	std::vector<glm::dvec3> v = { glm::dvec3(x + size, y, z + size), glm::dvec3(x - size, y, z + size), glm::dvec3(x + size, y, z - size), glm::dvec3(x - size, y, z - size) };
-	world.add(make_shared<Light>(v, glm::dvec3(x, y, z), 6.0, glm::dvec3{ 1, 1, 1 }));
+	world.add(make_shared<Light>(v, glm::dvec3(x, y, z), 8.0, glm::dvec3{ 1, 1, 1 }));
 
 	//world.add(make_shared<Triangle>(someData, glm::dvec3(0,0,0), 0, lambertian));
 	//world.add(make_shared<Quad>(glm::dvec3(0, 0, -2), glm::dvec3(0, 2, -2), glm::dvec3(2, 0, -2), glm::dvec3(2, 2, -2), lambertian));
