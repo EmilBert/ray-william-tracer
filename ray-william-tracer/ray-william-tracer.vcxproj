@@ -89,7 +89,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)\vendor\glm;$(SolutionDir)\vendor\sdl\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\vendor\glm;$(SolutionDir)\vendor\sdl\include;$(SolutionDir)\stb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -118,7 +118,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)\vendor\glm;$(SolutionDir)\vendor\sdl\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\vendor\glm;$(SolutionDir)\vendor\sdl\include;$(SolutionDir)\stb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -153,6 +153,8 @@
     <ClCompile Include="src\plane.cpp" />
     <ClCompile Include="src\scene.cpp" />
     <ClCompile Include="src\sdl_rendering.cpp" />
+    <ClCompile Include="src\sphere.cpp" />
+    <ClCompile Include="src\texture.cpp" />
     <ClCompile Include="src\triangle.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -169,6 +171,7 @@
     <ClInclude Include="src\scene.h" />
     <ClInclude Include="src\sdl_rendering.h" />
     <ClInclude Include="src\sphere.h" />
+    <ClInclude Include="src\texture.h" />
     <ClInclude Include="src\utility.h" />
     <ClInclude Include="src\triangle.h" />
   </ItemGroup>

@@ -2,6 +2,7 @@
 
 #include"light.h"
 #include"scene.h"
+#include"texture.h"
 
 #include<glm/common.hpp>
 
@@ -36,7 +37,10 @@ bool Lambertian::scatter(const Ray& ray_in, const hit_record& rec, glm::dvec3& a
     // Get light diffusion
     double diffusion = glm::max(0.3, scene->light_ray_pass(rec));
 
-    attentuation = diffusion * albedo;
+    // Do we have texture?
+    Texture* texture = rec.hittable_ptr.get()->getTexture();
+
+    attentuation = (texture != nullptr ? texture->get_pixel_value(rec.hittable_ptr.get()->getUV(rec.p)) : albedo) * diffusion;
     return true;
 }
 

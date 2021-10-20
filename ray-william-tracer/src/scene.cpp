@@ -9,6 +9,7 @@
 #include"light.h"
 #include"sdl_rendering.h"
 #include"plane.h"
+#include"texture.h"
 
 #define NOMINMAX
 #include<glm/vec3.hpp>
@@ -17,7 +18,6 @@
 #include<thread>
 #include<vector>
 #include<future>
-#include<asyncinfo.h>
 
 #define RAY_WILLIAM_MULTI_THREAD true
 #define MIN_LIGHT_INTENSITY 0.2
@@ -58,7 +58,8 @@ void Scene::setup_scene()
 	//addCube(glm::dvec3(0.5, 0.5, -1.5), 0.2, dielectric, world, glm::dvec3(0, 20.0, 0));
 	//addCube(glm::dvec3(0, 0, -1), 0.1, diffuse_light, world, glm::dvec3(0, 0, 0));
 	//world.add(make_shared<Sphere>(glm::dvec3(-0.5, 0.0, -1.2), 0.35, lambertian));
-	world.add(make_shared<Sphere>(glm::dvec3(-0.6, 0.0, -1.2), 0.2, lambertian_blue));
+	auto texture = std::make_shared<Texture>();
+	world.add(make_shared<Sphere>(glm::dvec3(0, 0.0, -1.2), 0.5, lambertian_blue, texture));
 
 	double eps = 1e-06;
 	double y = 1 - eps;
