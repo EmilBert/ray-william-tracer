@@ -22,7 +22,7 @@
 #define RAY_WILLIAM_MULTI_THREAD true
 #define MIN_LIGHT_INTENSITY 0.2
 
-Scene::Scene() : camera(glm::dvec3(0,0.3,0), glm::dvec3(0,0,-1), glm::dvec3(0,1,0), 85, 12.0/9.0), world()
+Scene::Scene() : camera(glm::dvec3(0,0,0), glm::dvec3(0,0,-1), glm::dvec3(0,1,0), 85, 12.0/9.0), world()
 {
 	framebuffer = new glm::dvec3[camera.image_width * camera.image_height];
 }
@@ -39,20 +39,20 @@ void Scene::setup_scene()
 	auto metal = make_shared<Metal>(glm::dvec3(1.0, 1.0, 1.0), 0);
 	auto unlit = make_shared<Unlit>(glm::dvec3(1.0, 0.0, 0.0));
 
-	// Floor
-	world.add(std::make_shared<Plane>(glm::dvec3(0, -1, 0), glm::dvec3(0, 1, 0), material_ground ));
-	// Roof
-	world.add(std::make_shared<Plane>(glm::dvec3(0, 1, 0), glm::dvec3(0, -1, 0), material_ground ));
-	// Left wall
-	world.add(std::make_shared<Plane>(glm::dvec3(-1, 0, 0), glm::dvec3(1, 0, 0), lambertian_green ));
-	// Right wall
-	world.add(std::make_shared<Plane>(glm::dvec3(1, 0, 0), glm::dvec3(-1, 0, 0), lambertian_red ));
-	// Front wall
-	world.add(std::make_shared<Plane>(glm::dvec3(0, 0, -2), glm::dvec3(0, 0, 1), material_ground ));
-	// Back wall
-	world.add(std::make_shared<Plane>(glm::dvec3(0, 0, 0), glm::dvec3(0, 0, -1), lambertian_red ));
+	//// Floor
+	//world.add(std::make_shared<Plane>(glm::dvec3(0, -1, 0), glm::dvec3(0, 1, 0), material_ground ));
+	//// Roof
+	//world.add(std::make_shared<Plane>(glm::dvec3(0, 1, 0), glm::dvec3(0, -1, 0), material_ground ));
+	//// Left wall
+	//world.add(std::make_shared<Plane>(glm::dvec3(-1, 0, 0), glm::dvec3(1, 0, 0), lambertian_green ));
+	//// Right wall
+	//world.add(std::make_shared<Plane>(glm::dvec3(1, 0, 0), glm::dvec3(-1, 0, 0), lambertian_red ));
+	//// Front wall
+	//world.add(std::make_shared<Plane>(glm::dvec3(0, 0, -2), glm::dvec3(0, 0, 1), material_ground ));
+	//// Back wall
+	//world.add(std::make_shared<Plane>(glm::dvec3(0, 0, 0), glm::dvec3(0, 0, -1), lambertian_red ));
 
-	//add_mark_room(glm::dvec3(0, 0, -1), 1, material_ground, lambertian_red, lambertian_green, lambertian_blue, lambertian_red, lambertian_green, lambertian_blue);
+	add_mark_room(glm::dvec3(0, 0, -1), 1, material_ground, lambertian_red, lambertian_green, lambertian_blue, lambertian_red, lambertian_green, lambertian_blue);
 	//add_mark_room(glm::dvec3(0, 0, -1), 1, material_ground, material_ground, material_ground, material_ground, material_ground, material_ground, material_ground);
 	//add_cornell_box(glm::dvec3(0, 0, -1), 1, material_ground, material_ground, material_ground);
 	//addCube(glm::dvec3(0.5, 0.5, -1.5), 0.2, dielectric, world, glm::dvec3(0, 20.0, 0));
@@ -323,43 +323,84 @@ void Scene::add_cornell_box(const glm::dvec3& origin, double radius, shared_ptr<
 void Scene::add_mark_room(const glm::dvec3& origin, double radius, shared_ptr<Material> m, shared_ptr<Material> wall_1, shared_ptr<Material> wall_2, shared_ptr<Material> wall_3, shared_ptr<Material> wall_4, shared_ptr<Material> wall_5, shared_ptr<Material> wall_6)
 {
 
-	double x1 = origin.x;
-	double x2 = origin.x - radius;
-	double x3 = origin.x + radius;
+	// Floor
+	world.add(std::make_shared<Plane>(glm::dvec3(0, -radius, 0), glm::dvec3(0, 1, 0), m));
+	// Roof
+	world.add(std::make_shared<Plane>(glm::dvec3(0, radius, 0), glm::dvec3(0, -1, 0), m));
 
-	double z1 = origin.z - radius;
-	double z2 = origin.z + radius;
-	double z3 = origin.z - radius/2;
-	double z4 = origin.z + radius/2;
-	
-	// Wall corner vertices
-	glm::dvec3 v0{x2, origin.y, z4};
-	glm::dvec3 v1{x2, origin.y, z3};
-	glm::dvec3 v2{x1, origin.y, z1};
-	glm::dvec3 v3{x3, origin.y, z3};
-	glm::dvec3 v4{x3, origin.y, z4};
-	glm::dvec3 v5{x1, origin.y, z2};
-	
-	// Floor and ceiling vertices
-	glm::dvec3 v6{ origin - glm::dvec3(-radius*3, 0, radius*3) };
-	glm::dvec3 v7{ origin - glm::dvec3(-radius*3, 0, -radius*3) };
-	glm::dvec3 v8{ origin - glm::dvec3(radius*3, 0, -radius*3) };
-	glm::dvec3 v9{ origin - glm::dvec3(radius*3, 0, radius*3) };
-	
-	// Upper and lower y
-	glm::dvec3 y{0, radius, 0}; //ToFloor
 
-	// Create quads, add or subtract y for ceiling or floor coordinates
-	add_quad(v9 - y, v8 - y, v6 - y, v7 - y, m); // Floor
-	add_quad(v9 + y, v8 + y, v6 + y, v7 + y, m); // Ceiling
-	add_quad(v0 - y, v1 - y, v0 + y, v1 + y, wall_1); // wall_1 - Left wall -> clockwise next
-	add_quad(v1 - y, v2 - y, v1 + y, v2 + y, wall_2); // wall_2
-	add_quad(v2 - y, v3 - y, v2 + y, v3 + y, wall_3); // wall_3
-	add_quad(v3 - y, v4 - y, v3 + y, v4 + y, wall_4); // wall_4
-	add_quad(v4 - y, v5 - y, v4 + y, v5 + y, wall_5); // wall_5
-	add_quad(v5 - y, v0 - y, v5 + y, v0 + y, wall_6); // wall_6
+	glm::dvec3 o(origin);
+	glm::dquat rotQuat;
+	rotQuat = glm::dquat(glm::radians(glm::dvec3(0,60,0)));
 
+
+	//v0 = rotQuad * glm::vec3(v0);
+
+	glm::dvec3 wallPos = origin - glm::dvec3(-radius,0,0);
+	glm::dvec3 wallNormal;
+
+	// Wall 1
+	wallNormal = origin - wallPos;
+	world.add(std::make_shared<Plane>(wallPos, wallNormal, wall_1));
+	wallPos = o + rotQuat * (wallPos - o);
+	wallNormal = origin - wallPos;
+	world.add(std::make_shared<Plane>(wallPos, wallNormal, wall_2));
+	wallPos = o + rotQuat * (wallPos - o);
+	wallNormal = origin - wallPos;
+	world.add(std::make_shared<Plane>(wallPos, wallNormal, wall_3));
+	wallPos = o + rotQuat * (wallPos - o);
+	wallNormal = origin - wallPos;
+	world.add(std::make_shared<Plane>(wallPos, wallNormal, wall_4));
+	wallPos = o + rotQuat * (wallPos - o);
+	wallNormal = origin - wallPos;
+	world.add(std::make_shared<Plane>(wallPos, wallNormal, wall_5));
+	wallPos = o + rotQuat * (wallPos - o);
+	wallNormal = origin - wallPos;
+	world.add(std::make_shared<Plane>(wallPos, wallNormal, wall_6));
+	
 }
+
+
+//void Scene::add_mark_room(const glm::dvec3& origin, double radius, shared_ptr<Material> m, shared_ptr<Material> wall_1, shared_ptr<Material> wall_2, shared_ptr<Material> wall_3, shared_ptr<Material> wall_4, shared_ptr<Material> wall_5, shared_ptr<Material> wall_6)
+//{
+//
+//	double x1 = origin.x;
+//	double x2 = origin.x - radius;
+//	double x3 = origin.x + radius;
+//
+//	double z1 = origin.z - radius;
+//	double z2 = origin.z + radius;
+//	double z3 = origin.z - radius/2;
+//	double z4 = origin.z + radius/2;
+//	
+//	// Wall corner vertices
+//	glm::dvec3 v0{x2, origin.y, z4};
+//	glm::dvec3 v1{x2, origin.y, z3};
+//	glm::dvec3 v2{x1, origin.y, z1};
+//	glm::dvec3 v3{x3, origin.y, z3};
+//	glm::dvec3 v4{x3, origin.y, z4};
+//	glm::dvec3 v5{x1, origin.y, z2};
+//	
+//	// Floor and ceiling vertices
+//	glm::dvec3 v6{ origin - glm::dvec3(-radius*3, 0, radius*3) };
+//	glm::dvec3 v7{ origin - glm::dvec3(-radius*3, 0, -radius*3) };
+//	glm::dvec3 v8{ origin - glm::dvec3(radius*3, 0, -radius*3) };
+//	glm::dvec3 v9{ origin - glm::dvec3(radius*3, 0, radius*3) };
+//	
+//	// Upper and lower y
+//	glm::dvec3 y{0, radius, 0}; //ToFloor
+//
+//	// Create quads, add or subtract y for ceiling or floor coordinates
+//	add_quad(v9 - y, v8 - y, v6 - y, v7 - y, m); // Floor
+//	add_quad(v9 + y, v8 + y, v6 + y, v7 + y, m); // Ceiling
+//	add_quad(v0 - y, v1 - y, v0 + y, v1 + y, wall_1); // wall_1 - Left wall -> clockwise next
+//	add_quad(v1 - y, v2 - y, v1 + y, v2 + y, wall_2); // wall_2
+//	add_quad(v2 - y, v3 - y, v2 + y, v3 + y, wall_3); // wall_3
+//	add_quad(v3 - y, v4 - y, v3 + y, v4 + y, wall_4); // wall_4
+//	add_quad(v4 - y, v5 - y, v4 + y, v5 + y, wall_5); // wall_5
+//	add_quad(v5 - y, v0 - y, v5 + y, v0 + y, wall_6); // wall_6
+//
+//}
 
 void Scene::add_cube(const glm::dvec3& origin, double radius, shared_ptr<Material> m, HittableList& world_ref, glm::dvec3 rot)
 {
