@@ -111,7 +111,7 @@ void Scene::render_scene()
 
 						// Shoot ray!
 						Ray r = camera.get_ray(u, v);
-						pixel_color += ray_color(r, scene->world, 0);
+						pixel_color += trace_ray(r, scene->world, 0);
 					}
 
 					// Set pixel_color at index to pixel_color
@@ -182,7 +182,7 @@ void Scene::view_render_in_SDL() const
 	render_framebuffer_as_SDL(framebuffer, camera.image_width, camera.image_height);
 }
 
-glm::dvec3 Scene::ray_color(const Ray& ray, const Hittable& world, int depth) const
+glm::dvec3 Scene::trace_ray(const Ray& ray, const Hittable& world, int depth) const
 {
 	hit_record rec;
 
@@ -217,7 +217,7 @@ glm::dvec3 Scene::ray_color(const Ray& ray, const Hittable& world, int depth) co
 		//}
 
 		// Send another ray with recursion
-		return attenuation * ray_color(scattered, world, depth);
+		return attenuation * trace_ray(scattered, world, depth);
 	}
 
 	return bg; 
