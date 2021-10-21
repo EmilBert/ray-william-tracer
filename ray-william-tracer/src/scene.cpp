@@ -221,22 +221,9 @@ glm::dvec3 Scene::trace_ray(const Ray& ray, const Hittable& world, int depth) co
 		if (rec.mat_ptr->terminate_ray(++depth, min_depth, max_depth, attenuation)) {
 			return attenuation;
 		}
-		//// Russian roulette if we exceed min depth
-		//if (++depth > min_depth) {
-		//	// Threshold creation, grab the maximum color value
-		//	double p = glm::max(attenuation.r, glm::max(attenuation.g, attenuation.b));
-		//	if (random_double() > p) {
-		//		// Break
-		//		return attenuation;
-		//	}
-		//	else {
-		//		// Add the energy we 'lose' by randomly terminating paths
-		//		attenuation *= 1 / p;
-		//	}
-		//}
 
-		// Send another ray with recursion
-		return attenuation * trace_ray(scattered, world, depth);
+		// Send another ray with recursion in the scattered direction
+		return attenuation * ray_color(scattered, world, depth);
 	}
 
 	return bg; 
