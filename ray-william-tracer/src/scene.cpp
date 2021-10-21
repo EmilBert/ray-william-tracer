@@ -21,10 +21,10 @@
 #include <chrono>
 
 #define RAY_WILLIAM_MULTI_THREAD true
-#define RECORD_RENDER_TIME true
-#define MIN_LIGHT_INTENSITY 0.2
+#define RECORD_RENDER_TIME false
+#define MIN_LIGHT_INTENSITY 0
 
-Scene::Scene() : camera(glm::dvec3(0,0,0), glm::dvec3(0,0,-1), glm::dvec3(0,1,0), 85, 12.0/9.0), world()
+Scene::Scene() : camera(glm::dvec3(0,0,0), glm::dvec3(0,0,-1), glm::dvec3(0,1,0), 90, 12.0/9.0), world()
 {
 	framebuffer = new glm::dvec3[camera.image_width * camera.image_height];
 }
@@ -41,8 +41,8 @@ void Scene::setup_scene()
 	auto metal = make_shared<Metal>(glm::dvec3(1.0, 1.0, 1.0), 0);
 	auto unlit = make_shared<Unlit>(glm::dvec3(1.0, 0.0, 0.0));
 
-	//// Floor
-	//world.add(std::make_shared<Plane>(glm::dvec3(0, -1, 0), glm::dvec3(0, 1, 0), material_ground ));
+	// Floor
+	//world.add(std::make_shared<Plane>(glm::dvec3(0, -1, 0), glm::dvec3(0, 1, 0), lambertian_green ));
 	//// Roof
 	//world.add(std::make_shared<Plane>(glm::dvec3(0, 1, 0), glm::dvec3(0, -1, 0), material_ground ));
 	//// Left wall
@@ -54,7 +54,7 @@ void Scene::setup_scene()
 	//// Back wall
 	//world.add(std::make_shared<Plane>(glm::dvec3(0, 0, 0), glm::dvec3(0, 0, -1), lambertian_red ));
 
-	add_mark_room(glm::dvec3(0, 0, -1), 1, material_ground, lambertian_red, lambertian_green, lambertian_blue, lambertian_red, lambertian_green, lambertian_blue);
+	//add_mark_room(glm::dvec3(0, 0, -1), 1, material_ground, lambertian_red, lambertian_green, lambertian_blue, lambertian_red, lambertian_green, lambertian_blue);
 	//add_mark_room(glm::dvec3(0, 0, -1), 1, material_ground, material_ground, material_ground, material_ground, material_ground, material_ground, material_ground);
 	//add_cornell_box(glm::dvec3(0, 0, -1), 1, material_ground, material_ground, material_ground);
 	//addCube(glm::dvec3(0.5, 0.5, -1.5), 0.2, dielectric, world, glm::dvec3(0, 20.0, 0));
@@ -66,13 +66,16 @@ void Scene::setup_scene()
 	double eps = 1e-06;
 	double y = 1 - eps;
 	double z = -1;
-	double size = 0.25;
+	//double size = 0.25;
+	double size = 1;
 	double x = 0;
 	//add_quad(glm::dvec3(x + size, y, z - size), glm::dvec3(x - size, y, z - size), glm::dvec3(x + size, y, z + size), glm::dvec3(x - size, y, z + size), unlit);
 
 	//add_cube(glm::dvec3(0.15, -0.5, -1.5), 0.2, lambertian_blue, world, glm::dvec3(0, 0, 0));
 	std::vector<glm::dvec3> v = { glm::dvec3(x + size, y, z + size), glm::dvec3(x - size, y, z + size), glm::dvec3(x + size, y, z - size), glm::dvec3(x - size, y, z - size) };
-	world.add(make_shared<Light>(v, glm::dvec3(x, y, z), 8.0, glm::dvec3{ 1, 1, 1 }));
+	world.add(make_shared<Light>(v, glm::dvec3(x, y, z), 3.0, glm::dvec3{ 1, 0, 0 }));
+	v = { glm::dvec3(x + size, -y, z + size), glm::dvec3(x - size, -y, z + size), glm::dvec3(x + size, -y, z - size), glm::dvec3(x - size, -y, z - size) };
+	world.add(make_shared<Light>(v, glm::dvec3(x, -y, z), 3.0, glm::dvec3{ 0, 0, 1 }));
 
 	//world.add(make_shared<Triangle>(someData, glm::dvec3(0,0,0), 0, lambertian));
 	//world.add(make_shared<Quad>(glm::dvec3(0, 0, -2), glm::dvec3(0, 2, -2), glm::dvec3(2, 0, -2), glm::dvec3(2, 2, -2), lambertian));
@@ -193,7 +196,7 @@ void Scene::view_render_in_SDL() const
 {
 	// So basically, open a SDL window, take our framebuffer and draw each pixel, shouldn't be too hard - Daivd on 13th of October 2021
 	// famous last words
-	render_framebuffer_as_SDL(framebuffer, camera.image_width, camera.image_height);
+	render_framebuffer_as_SDL(framebuffer, camera.image_width, camera.image_height, camera.samples_per_pixel);
 }
 
 glm::dvec3 Scene::ray_color(const Ray& ray, const Hittable& world, int depth) const
@@ -205,6 +208,7 @@ glm::dvec3 Scene::ray_color(const Ray& ray, const Hittable& world, int depth) co
 		Ray scattered;
 		glm::dvec3 attenuation;
 
+		// If we hit a light simply terminate and return tht lights color
 		if ((*rec.hittable_ptr).isLight()) {
 			return dynamic_cast<Light*>(rec.hittable_ptr.get())->light_color;
 		}
@@ -213,24 +217,12 @@ glm::dvec3 Scene::ray_color(const Ray& ray, const Hittable& world, int depth) co
 		// Light contribution gets spent into attenuation
 		rec.mat_ptr->scatter(ray, rec, attenuation, scattered, (Scene*)this);
 
+		// Do we terminate?
 		if (rec.mat_ptr->terminate_ray(++depth, min_depth, max_depth, attenuation)) {
 			return attenuation;
 		}
-		//// Russian roulette if we exceed min depth
-		//if (++depth > min_depth) {
-		//	// Threshold creation, grab the maximum color value
-		//	double p = glm::max(attenuation.r, glm::max(attenuation.g, attenuation.b));
-		//	if (random_double() > p) {
-		//		// Break
-		//		return attenuation;
-		//	}
-		//	else {
-		//		// Add the energy we 'lose' by randomly terminating paths
-		//		attenuation *= 1 / p;
-		//	}
-		//}
 
-		// Send another ray with recursion
+		// Send another ray with recursion in the scattered direction
 		return attenuation * ray_color(scattered, world, depth);
 	}
 
@@ -240,9 +232,7 @@ glm::dvec3 Scene::ray_color(const Ray& ray, const Hittable& world, int depth) co
 double Scene::light_ray_pass(const hit_record& rec) const
 {
 	double brightness = 0.0;
-	for (int i : this->world.light_indices) {
-		// get the light
-		auto l = dynamic_cast<Light*>(this->world.objects[i].get());
+	for (auto l : world.lights) {
 
 		const int N = 6;
 		//glm::dvec3 G = { 0,0,0 };
