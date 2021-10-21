@@ -18,11 +18,11 @@ class Sphere : public Hittable {
 
 bool Sphere::hit(const Ray& ray, double t_min, double t_max, hit_record& rec) const {
 	glm::dvec3 oc = ray.origin() - center; // Ray pointing from ray origin to center
-	double a = glm::dot(ray.direction(), ray.direction()); // Length of the ray squared // @POTENTIAL: Glm convert 
+	double a = glm::dot(ray.direction(), ray.direction()); // Length of the ray squared  
 
 	// Some constants to describe wheter our ray intersects the sphere or not
 	double half_b = glm::dot(oc, ray.direction());
-	double c = glm::dot(oc,oc) - radius * radius; // @POTENTIAL: Glm convert
+	double c = glm::dot(oc,oc) - radius * radius; 
 
 	double discriminant = half_b * half_b - a * c;
 	if (discriminant < 0) return false;

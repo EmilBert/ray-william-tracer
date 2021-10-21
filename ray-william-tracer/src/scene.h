@@ -20,10 +20,10 @@ public:
 	void view_render_in_SDL() const;
 
 	/* Utility */
-	glm::dvec3 ray_color(const Ray& ray, glm::dvec3 bg, const Hittable& world, int depth) const;
+	glm::dvec3 trace_ray(const Ray& ray, const Hittable& world, int depth) const;
 	
 	/* Returns the factor G for hit_record */
-	glm::dvec3 light_ray_pass(hit_record& rec) const;
+	double light_ray_pass(const hit_record& rec) const;
 
 	// Adds a quad to the world
 	void add_quad(const glm::dvec3& bottomLeft, const glm::dvec3& bottomRight, const glm::dvec3& topLeft, const glm::dvec3& topRight, shared_ptr<Material> m);
@@ -32,8 +32,7 @@ public:
 	void add_cornell_box(const glm::dvec3& origin, double radius,
 		shared_ptr<Material> m,
 		shared_ptr<Material> left,
-		shared_ptr<Material> right
-);
+		shared_ptr<Material> right);
 
 	void add_mark_room(const glm::dvec3& origin, double radius,
 		shared_ptr<Material> m,
@@ -42,8 +41,7 @@ public:
 		shared_ptr<Material> wall_3,
 		shared_ptr<Material> wall_4,
 		shared_ptr<Material> wall_5,
-		shared_ptr<Material> wall_6
-	);
+		shared_ptr<Material> wall_6);
 
 	// Adds a cube to the world
 	void add_cube(const glm::dvec3& origin, double radius, shared_ptr<Material> m, HittableList& world_ref, glm::dvec3 rot);
@@ -51,8 +49,9 @@ public:
 public:
 	HittableList world;
 	Camera camera;
-	int min_depth = 8;
+	int min_depth = 4;
+	int max_depth = 8;
 	glm::dvec3* framebuffer;
-	glm::dvec3 bg = { 0.8, 0.8, 0.8 };
+	glm::dvec3 bg = { 1,0,0 };
 
 };

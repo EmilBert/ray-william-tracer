@@ -1,25 +1,28 @@
 #include"material.h"
 
 #include"light.h"
+#include"scene.h"
+
+#include<glm/common.hpp>
 
 /* METAL */
 
-bool Metal::scatter(const Ray& r_in, const hit_record& rec, glm::dvec3& attenuation, Ray& scattered) const
+bool Metal::scatter(const Ray& r_in, const hit_record& rec, glm::dvec3& attenuation, Ray& scattered, Scene* scene) const
 {
     glm::dvec3 reflected = glm::reflect(glm::normalize(r_in.direction()), rec.normal);
-    scattered = Ray(rec.p, reflected + fuzz * random_in_unit_sphere());
-    attenuation = albedo;
+    scattered = Ray(rec.p, reflected);
+    attenuation = 0.8*albedo;
     return (glm::dot(scattered.direction(), rec.normal) > 0);
 }
 
-glm::dvec3 Metal::light_pass(const glm::dvec3& light_pos, const hit_record& rec, Light* l)
+bool Metal::terminate_ray(int depth, int min_depth, int max_depth, glm::dvec3& attenuation) const
 {
-    return glm::dvec3(0, 0, 0);
+    return depth > max_depth;
 }
 
 /* LAMBERTIAN */
 
-bool Lambertian::scatter(const Ray& ray_in, const hit_record& rec, glm::dvec3& attentuation, Ray& scattered) const
+bool Lambertian::scatter(const Ray& ray_in, const hit_record& rec, glm::dvec3& attentuation, Ray& scattered, Scene* scene) const
 {
     // TODO: Russian roulette implementation (see lecture 10 notes)
     auto scatter_direction = rec.normal + random_unit_vector();
@@ -29,26 +32,34 @@ bool Lambertian::scatter(const Ray& ray_in, const hit_record& rec, glm::dvec3& a
         scatter_direction = rec.normal;
 
     scattered = Ray(rec.p, scatter_direction);
-    attentuation = albedo;
+
+    // Get light diffusion
+    double diffusion = glm::max(0.3, scene->light_ray_pass(rec));
+
+    attentuation = diffusion * albedo;
     return true;
 }
 
-glm::dvec3 Lambertian::light_pass(const glm::dvec3& light_pos, const hit_record& rec, Light* l)
+bool Lambertian::terminate_ray(int depth, int min_depth, int max_depth, glm::dvec3& attenuation) const
 {
-    glm::dvec3 toLight = (light_pos - rec.p); // vector pointing to our randomLightPos
-    glm::dvec3 toLightNormalized = glm::normalize(toLight);
+    if (++depth > min_depth) {
+        // Threshold creation, grab the maximum color value
+        double p = glm::max(attenuation.r, glm::max(attenuation.g, attenuation.b));
+        if (random_double() > p) {
+            // Break
+            return true;
+        }
+        else {
+            attenuation *= 1 / p;
+        }
+    }
 
-    double cosThetaIn = glm::dot(toLightNormalized, rec.normal);
-    double cosThetaL = glm::dot(-toLightNormalized, l->t0.normal);
-
-    glm::dvec3 result = l->light_color * ((cosThetaIn * cosThetaL) / glm::length(toLight)) * l->intensity;
-
-    return result;
+    return false;
 }
 
 /* DIELECTRIC */
 
-bool Dielectric::scatter(const Ray& ray_in, const hit_record& rec, glm::dvec3& attentuation, Ray& scattered) const
+bool Dielectric::scatter(const Ray& ray_in, const hit_record& rec, glm::dvec3& attentuation, Ray& scattered, Scene* scene) const
 {
     attentuation = glm::dvec3(1.0, 1.0, 1.0);
     double refraction_ratio = rec.front_face ? (1.0 / refraction_index) : refraction_index;

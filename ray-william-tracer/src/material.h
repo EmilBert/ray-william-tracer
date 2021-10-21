@@ -4,6 +4,7 @@
 #include "hittable.h"
 
 class Light;
+class Scene;
 
 #include<glm/geometric.hpp>
 
@@ -13,10 +14,11 @@ public:
         return glm::dvec3(0, 0, 0);
     }
 
-    virtual bool scatter(const Ray& ray_in, const hit_record& rec, glm::dvec3& attenuation, Ray& scattered
+    virtual bool scatter(const Ray& ray_in, const hit_record& rec, glm::dvec3& attenuation, Ray& scattered, Scene* scene
     ) const = 0;
 
-    virtual glm::dvec3 light_pass(const glm::dvec3& light_pos, const hit_record& rec, Light* l) { return glm::dvec3(0, 0, 0); }
+    virtual bool terminate_ray(int depth, int min_depth, int max_depth, glm::dvec3& attenuation) const { return true;  }
+
 };
 
 class Unlit : public Material {
@@ -24,7 +26,7 @@ public:
     Unlit(const glm::dvec3& c) : color(c) {}
 
     virtual bool scatter(
-        const Ray& r_in, const hit_record& rec, glm::dvec3& attenuation, Ray& scattered
+        const Ray& r_in, const hit_record& rec, glm::dvec3& attenuation, Ray& scattered, Scene* scene
     ) const override {
         attenuation = color;
         return true;
@@ -39,10 +41,10 @@ public:
     Metal(const glm::dvec3& a, double f) : albedo(a), fuzz(f < 1 ? f : 1) {}
 
     virtual bool scatter(
-        const Ray& r_in, const hit_record& rec, glm::dvec3& attenuation, Ray& scattered
+        const Ray& r_in, const hit_record& rec, glm::dvec3& attenuation, Ray& scattered, Scene* scene
     ) const override;
 
-    virtual glm::dvec3 light_pass(const glm::dvec3& light_pos, const hit_record& rec, Light* l);
+    virtual bool terminate_ray(int depth, int min_depth, int max_depth, glm::dvec3& attenuation) const override;
 
 public:
     glm::dvec3 albedo;
@@ -54,10 +56,11 @@ public:
     Lambertian(const glm::dvec3& a) : albedo(a) {}
 
     virtual bool scatter(
-        const Ray& ray_in, const hit_record& rec, glm::dvec3& attentuation, Ray& scattered
+        const Ray& ray_in, const hit_record& rec, glm::dvec3& attentuation, Ray& scattered, Scene* scene
     ) const override;
 
-    virtual glm::dvec3 light_pass(const glm::dvec3& light_pos, const hit_record& rec, Light* l);
+    virtual bool terminate_ray(int depth, int min_depth, int max_depth, glm::dvec3& attenuation) const override;
+
 
 public:
     glm::dvec3 albedo;
@@ -68,7 +71,7 @@ public:
     Dielectric(double index_of_refraction) : refraction_index(index_of_refraction) {}
 
     virtual bool scatter(
-        const Ray& ray_in, const hit_record& rec, glm::dvec3& attentuation, Ray& scattered
+        const Ray& ray_in, const hit_record& rec, glm::dvec3& attentuation, Ray& scattered, Scene* scene
     ) const override;
 
 public:

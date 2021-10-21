@@ -8,6 +8,7 @@
 #include"color.h"
 #include"light.h"
 #include"sdl_rendering.h"
+#include"plane.h"
 
 #define NOMINMAX
 #include<glm/vec3.hpp>
@@ -21,7 +22,7 @@
 #define RAY_WILLIAM_MULTI_THREAD true
 #define MIN_LIGHT_INTENSITY 0.2
 
-Scene::Scene() : camera(), world()
+Scene::Scene() : camera(glm::dvec3(0,0,0), glm::dvec3(0,0,-1), glm::dvec3(0,1,0), 85, 12.0/9.0), world()
 {
 	framebuffer = new glm::dvec3[camera.image_width * camera.image_height];
 }
@@ -32,27 +33,43 @@ void Scene::setup_scene()
 	auto lambertian_red = make_shared<Lambertian>(glm::dvec3(1.0, 0, 0));
 	auto lambertian_green = make_shared<Lambertian>(glm::dvec3(0, 1.0, 0));
 	auto lambertian_blue = make_shared<Lambertian>(glm::dvec3(0, 0, 1));
+	auto lambertian = make_shared<Lambertian>(glm::dvec3(1, 1, 0));
 
 	auto dielectric = make_shared<Dielectric>(1.5);
 	auto metal = make_shared<Metal>(glm::dvec3(1.0, 1.0, 1.0), 0);
 	auto unlit = make_shared<Unlit>(glm::dvec3(1.0, 0.0, 0.0));
 
-	add_mark_room(glm::dvec3(0, 0, -1), 1, material_ground, lambertian_red, lambertian_green, metal, lambertian_red, lambertian_green, lambertian_blue);
+	//// Floor
+	//world.add(std::make_shared<Plane>(glm::dvec3(0, -1, 0), glm::dvec3(0, 1, 0), material_ground ));
+	//// Roof
+	//world.add(std::make_shared<Plane>(glm::dvec3(0, 1, 0), glm::dvec3(0, -1, 0), material_ground ));
+	//// Left wall
+	//world.add(std::make_shared<Plane>(glm::dvec3(-1, 0, 0), glm::dvec3(1, 0, 0), lambertian_green ));
+	//// Right wall
+	//world.add(std::make_shared<Plane>(glm::dvec3(1, 0, 0), glm::dvec3(-1, 0, 0), lambertian_red ));
+	//// Front wall
+	//world.add(std::make_shared<Plane>(glm::dvec3(0, 0, -2), glm::dvec3(0, 0, 1), material_ground ));
+	//// Back wall
+	//world.add(std::make_shared<Plane>(glm::dvec3(0, 0, 0), glm::dvec3(0, 0, -1), lambertian_red ));
+
+	add_mark_room(glm::dvec3(0, 0, -1), 1, material_ground, lambertian_red, lambertian_green, lambertian_blue, lambertian_red, lambertian_green, lambertian_blue);
+	//add_mark_room(glm::dvec3(0, 0, -1), 1, material_ground, material_ground, material_ground, material_ground, material_ground, material_ground, material_ground);
+	//add_cornell_box(glm::dvec3(0, 0, -1), 1, material_ground, material_ground, material_ground);
 	//addCube(glm::dvec3(0.5, 0.5, -1.5), 0.2, dielectric, world, glm::dvec3(0, 20.0, 0));
 	//addCube(glm::dvec3(0, 0, -1), 0.1, diffuse_light, world, glm::dvec3(0, 0, 0));
-	world.add(make_shared<Sphere>(glm::dvec3(-0.5, 0.0, -1.2), 0.35, metal));
-	//world.add(make_shared<Sphere>(glm::dvec3(-0.35, 0.0, -1.2), 0.2, metal));
+	//world.add(make_shared<Sphere>(glm::dvec3(-0.5, 0.0, -1.2), 0.35, lambertian));
+	world.add(make_shared<Sphere>(glm::dvec3(-0.6, 0.0, -1.2), 0.2, lambertian_blue));
 
 	double eps = 1e-06;
 	double y = 1 - eps;
 	double z = -1;
-	double size = 0.1;
+	double size = 0.25;
 	double x = 0;
 	//add_quad(glm::dvec3(x + size, y, z - size), glm::dvec3(x - size, y, z - size), glm::dvec3(x + size, y, z + size), glm::dvec3(x - size, y, z + size), unlit);
 
-	add_cube(glm::dvec3(0.5, -0.3, -1.0), 0.2, lambertian_blue, world, glm::dvec3(0, 20.0, 0));
+	//add_cube(glm::dvec3(0.15, -0.5, -1.5), 0.2, lambertian_blue, world, glm::dvec3(0, 0, 0));
 	std::vector<glm::dvec3> v = { glm::dvec3(x + size, y, z + size), glm::dvec3(x - size, y, z + size), glm::dvec3(x + size, y, z - size), glm::dvec3(x - size, y, z - size) };
-	world.add(make_shared<Light>(v, glm::dvec3(x, y, z), 2.0, glm::dvec3{ 1.5, 1.5, 1.5 }));
+	world.add(make_shared<Light>(v, glm::dvec3(x, y, z), 8.0, glm::dvec3{ 1, 1, 1 }));
 
 	//world.add(make_shared<Triangle>(someData, glm::dvec3(0,0,0), 0, lambertian));
 	//world.add(make_shared<Quad>(glm::dvec3(0, 0, -2), glm::dvec3(0, 2, -2), glm::dvec3(2, 0, -2), glm::dvec3(2, 2, -2), lambertian));
@@ -94,7 +111,7 @@ void Scene::render_scene()
 
 						// Shoot ray!
 						Ray r = camera.get_ray(u, v);
-						pixel_color += ray_color(r, bg, scene->world, 0);
+						pixel_color += trace_ray(r, scene->world, 0);
 					}
 
 					// Set pixel_color at index to pixel_color
@@ -117,7 +134,7 @@ void Scene::render_scene()
 				double u = (i + random_double()) / (camera.image_width - 1);
 				double v = (j + random_double()) / (camera.image_height - 1);
 				Ray r = camera.get_ray(u, v);
-				pixel_color += ray_color(r, bg, world, 0);
+				pixel_color += ray_color(r, world, 0);
 			}
 			//pixel_color = ray_color(camera.get_ray(i,j), bg, world, camera.max_depth);
 
@@ -165,7 +182,7 @@ void Scene::view_render_in_SDL() const
 	render_framebuffer_as_SDL(framebuffer, camera.image_width, camera.image_height);
 }
 
-glm::dvec3 Scene::ray_color(const Ray& ray, glm::dvec3 bg, const Hittable& world, int depth) const
+glm::dvec3 Scene::trace_ray(const Ray& ray, const Hittable& world, int depth) const
 {
 	hit_record rec;
 
@@ -178,44 +195,44 @@ glm::dvec3 Scene::ray_color(const Ray& ray, glm::dvec3 bg, const Hittable& world
 			return dynamic_cast<Light*>(rec.hittable_ptr.get())->light_color;
 		}
 
-		// Mateiral scattering
-		rec.mat_ptr->scatter(ray, rec, attenuation, scattered);
+		// Mateiral scattering, takes light into account
+		// Light contribution gets spent into attenuation
+		rec.mat_ptr->scatter(ray, rec, attenuation, scattered, (Scene*)this);
 
-		// Light contribution
-		glm::dvec3 brightness = light_ray_pass(rec);
-		attenuation *= glm::max(brightness, MIN_LIGHT_INTENSITY) * attenuation;
-
-		// Russian roulette if we exceed min depth
-		if (++depth > min_depth) {
-			// Threshold creation, grab the maximum color value
-			double p = glm::max(attenuation.r, glm::max(attenuation.g, attenuation.b));
-			if (random_double() > p) {
-				// Break
-				return attenuation;
-			}
-			else {
-				// Add the energy we 'lose' by randomly terminating paths
-				attenuation *= 1 / p;
-			}
+		if (rec.mat_ptr->terminate_ray(++depth, min_depth, max_depth, attenuation)) {
+			return attenuation;
 		}
+		//// Russian roulette if we exceed min depth
+		//if (++depth > min_depth) {
+		//	// Threshold creation, grab the maximum color value
+		//	double p = glm::max(attenuation.r, glm::max(attenuation.g, attenuation.b));
+		//	if (random_double() > p) {
+		//		// Break
+		//		return attenuation;
+		//	}
+		//	else {
+		//		// Add the energy we 'lose' by randomly terminating paths
+		//		attenuation *= 1 / p;
+		//	}
+		//}
 
 		// Send another ray with recursion
-		return attenuation * ray_color(scattered, bg, world, depth);
+		return attenuation * trace_ray(scattered, world, depth);
 	}
 
 	return bg; 
 }
 
-glm::dvec3 Scene::light_ray_pass(hit_record& rec) const
+double Scene::light_ray_pass(const hit_record& rec) const
 {
-	// double brightness = 0.0;
-	glm::dvec3 brightness = { 0,0,0 };
+	double brightness = 0.0;
 	for (int i : this->world.light_indices) {
 		// get the light
 		auto l = dynamic_cast<Light*>(this->world.objects[i].get());
 
 		const int N = 6;
-		glm::dvec3 G = { 0,0,0 };
+		//glm::dvec3 G = { 0,0,0 };
+		double G = 0.0;
 
 		for (int i = 0; i < N; i++) {
 			// For each sample point shoot a ray to a random point at the light
@@ -236,10 +253,9 @@ glm::dvec3 Scene::light_ray_pass(hit_record& rec) const
 
 			if (seenByLight) {
 				// From mark's lecture, somehow works, what's the difference from normal diffuse shading?
-				/*double cosThetaIn = glm::dot(toLightNormalized, rec.normal);
+				double cosThetaIn = glm::dot(toLightNormalized, rec.normal);
 				double cosThetaL = glm::dot(-toLightNormalized, l->t0.normal);
-				G += l->light_color * ((cosThetaIn * cosThetaL) / glm::length(toLight)) * l->intensity;*/
-				G += rec.mat_ptr->light_pass(randomLightPos, rec, l);
+				G += (cosThetaIn * cosThetaL) / glm::length(toLight) * l->intensity;
 			}
 		}
 		// We take a total of N samples pointing to the light
@@ -280,12 +296,12 @@ void Scene::add_cornell_box(const glm::dvec3& origin, double radius, shared_ptr<
 	glm::dvec3 v6{ x2, y2, z2 };
 	glm::dvec3 v7{ x2, y1, z2 };
 
-	glm::dvec3 translation = { 0,0,0.2 };
+	glm::dvec3 translation = { 0,0,0.1 };
 
 	add_quad(v4, v0, v5, v1, left); // left
 	add_quad(v0+translation, v3+translation, v1+translation, v2+translation, m); // front wall
 	add_quad(v3, v7, v2, v6, right);  // right wall
-	add_quad(v7,v4,v6,v5, m); // <- backwall
+	add_quad(v7-translation,v4-translation,v6-translation,v5-translation, m); // <- backwall
 	add_quad(v4, v7, v0, v3, m); // golvet
 	add_quad(v1, v2, v5, v6, m); // taket
 }
@@ -307,43 +323,84 @@ void Scene::add_cornell_box(const glm::dvec3& origin, double radius, shared_ptr<
 void Scene::add_mark_room(const glm::dvec3& origin, double radius, shared_ptr<Material> m, shared_ptr<Material> wall_1, shared_ptr<Material> wall_2, shared_ptr<Material> wall_3, shared_ptr<Material> wall_4, shared_ptr<Material> wall_5, shared_ptr<Material> wall_6)
 {
 
-	double x1 = origin.x;
-	double x2 = origin.x - radius;
-	double x3 = origin.x + radius;
+	// Floor
+	world.add(std::make_shared<Plane>(glm::dvec3(0, -radius, 0), glm::dvec3(0, 1, 0), m));
+	// Roof
+	world.add(std::make_shared<Plane>(glm::dvec3(0, radius, 0), glm::dvec3(0, -1, 0), m));
 
-	double z1 = origin.z - radius;
-	double z2 = origin.z + radius;
-	double z3 = origin.z - radius/2;
-	double z4 = origin.z + radius/2;
-	
-	// Wall corner vertices
-	glm::dvec3 v0{x2, origin.y, z4};
-	glm::dvec3 v1{x2, origin.y, z3};
-	glm::dvec3 v2{x1, origin.y, z1};
-	glm::dvec3 v3{x3, origin.y, z3};
-	glm::dvec3 v4{x3, origin.y, z4};
-	glm::dvec3 v5{x1, origin.y, z2};
-	
-	// Floor and ceiling vertices
-	glm::dvec3 v6{ origin - glm::dvec3(-radius, 0, radius) };
-	glm::dvec3 v7{ origin - glm::dvec3(-radius, 0, -radius) };
-	glm::dvec3 v8{ origin - glm::dvec3(radius, 0, -radius) };
-	glm::dvec3 v9{ origin - glm::dvec3(radius, 0, radius) };
-	
-	// Upper and lower y
-	glm::dvec3 y{0, radius, 0}; //ToFloor
 
-	// Create quads, add or subtract y for ceiling or floor coordinates
-	add_quad(v9 - y, v8 - y, v6 - y, v7 - y, m); // Floor
-	add_quad(v9 + y, v8 + y, v6 + y, v7 + y, m); // Ceiling
-	add_quad(v0 - y, v1 - y, v0 + y, v1 + y, wall_1); // wall_1 - Left wall -> clockwise next
-	add_quad(v1 - y, v2 - y, v1 + y, v2 + y, wall_2); // wall_2
-	add_quad(v2 - y, v3 - y, v2 + y, v3 + y, wall_3); // wall_3
-	add_quad(v3 - y, v4 - y, v3 + y, v4 + y, wall_4); // wall_4
-	add_quad(v4 - y, v5 - y, v4 + y, v5 + y, wall_5); // wall_5
-	add_quad(v5 - y, v0 - y, v5 + y, v0 + y, wall_6); // wall_6
+	glm::dvec3 o(origin);
+	glm::dquat rotQuat;
+	rotQuat = glm::dquat(glm::radians(glm::dvec3(0,60,0)));
 
+
+	//v0 = rotQuad * glm::vec3(v0);
+
+	glm::dvec3 wallPos = origin - glm::dvec3(-radius,0,0);
+	glm::dvec3 wallNormal;
+
+	// Wall 1
+	wallNormal = origin - wallPos;
+	world.add(std::make_shared<Plane>(wallPos, wallNormal, wall_1));
+	wallPos = o + rotQuat * (wallPos - o);
+	wallNormal = origin - wallPos;
+	world.add(std::make_shared<Plane>(wallPos, wallNormal, wall_2));
+	wallPos = o + rotQuat * (wallPos - o);
+	wallNormal = origin - wallPos;
+	world.add(std::make_shared<Plane>(wallPos, wallNormal, wall_3));
+	wallPos = o + rotQuat * (wallPos - o);
+	wallNormal = origin - wallPos;
+	world.add(std::make_shared<Plane>(wallPos, wallNormal, wall_4));
+	wallPos = o + rotQuat * (wallPos - o);
+	wallNormal = origin - wallPos;
+	world.add(std::make_shared<Plane>(wallPos, wallNormal, wall_5));
+	wallPos = o + rotQuat * (wallPos - o);
+	wallNormal = origin - wallPos;
+	world.add(std::make_shared<Plane>(wallPos, wallNormal, wall_6));
+	
 }
+
+
+//void Scene::add_mark_room(const glm::dvec3& origin, double radius, shared_ptr<Material> m, shared_ptr<Material> wall_1, shared_ptr<Material> wall_2, shared_ptr<Material> wall_3, shared_ptr<Material> wall_4, shared_ptr<Material> wall_5, shared_ptr<Material> wall_6)
+//{
+//
+//	double x1 = origin.x;
+//	double x2 = origin.x - radius;
+//	double x3 = origin.x + radius;
+//
+//	double z1 = origin.z - radius;
+//	double z2 = origin.z + radius;
+//	double z3 = origin.z - radius/2;
+//	double z4 = origin.z + radius/2;
+//	
+//	// Wall corner vertices
+//	glm::dvec3 v0{x2, origin.y, z4};
+//	glm::dvec3 v1{x2, origin.y, z3};
+//	glm::dvec3 v2{x1, origin.y, z1};
+//	glm::dvec3 v3{x3, origin.y, z3};
+//	glm::dvec3 v4{x3, origin.y, z4};
+//	glm::dvec3 v5{x1, origin.y, z2};
+//	
+//	// Floor and ceiling vertices
+//	glm::dvec3 v6{ origin - glm::dvec3(-radius*3, 0, radius*3) };
+//	glm::dvec3 v7{ origin - glm::dvec3(-radius*3, 0, -radius*3) };
+//	glm::dvec3 v8{ origin - glm::dvec3(radius*3, 0, -radius*3) };
+//	glm::dvec3 v9{ origin - glm::dvec3(radius*3, 0, radius*3) };
+//	
+//	// Upper and lower y
+//	glm::dvec3 y{0, radius, 0}; //ToFloor
+//
+//	// Create quads, add or subtract y for ceiling or floor coordinates
+//	add_quad(v9 - y, v8 - y, v6 - y, v7 - y, m); // Floor
+//	add_quad(v9 + y, v8 + y, v6 + y, v7 + y, m); // Ceiling
+//	add_quad(v0 - y, v1 - y, v0 + y, v1 + y, wall_1); // wall_1 - Left wall -> clockwise next
+//	add_quad(v1 - y, v2 - y, v1 + y, v2 + y, wall_2); // wall_2
+//	add_quad(v2 - y, v3 - y, v2 + y, v3 + y, wall_3); // wall_3
+//	add_quad(v3 - y, v4 - y, v3 + y, v4 + y, wall_4); // wall_4
+//	add_quad(v4 - y, v5 - y, v4 + y, v5 + y, wall_5); // wall_5
+//	add_quad(v5 - y, v0 - y, v5 + y, v0 + y, wall_6); // wall_6
+//
+//}
 
 void Scene::add_cube(const glm::dvec3& origin, double radius, shared_ptr<Material> m, HittableList& world_ref, glm::dvec3 rot)
 {
