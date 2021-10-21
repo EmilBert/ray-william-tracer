@@ -20,7 +20,7 @@ public:
 	void view_render_in_SDL() const;
 
 	/* Utility */
-	glm::dvec3 ray_color(const Ray& ray, const Hittable& world, int depth) const;
+	glm::dvec3 trace_ray(const Ray& ray, const Hittable& world, int depth) const;
 	
 	/* Returns the factor G for hit_record */
 	double light_ray_pass(const hit_record& rec) const;
