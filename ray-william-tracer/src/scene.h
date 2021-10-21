@@ -46,12 +46,14 @@ public:
 	// Adds a cube to the world
 	void add_cube(const glm::dvec3& origin, double radius, shared_ptr<Material> m, HittableList& world_ref, glm::dvec3 rot);
 
+	void add_final_scene();
+
 public:
 	HittableList world;
 	Camera camera;
 	int min_depth = 4;
 	int max_depth = 8;
 	glm::dvec3* framebuffer;
-	glm::dvec3 bg = { 0,0,0 }; 
+	glm::dvec3 bg = { 0.7, 0.7, 0.7 }; 
 
 };

@@ -152,6 +152,7 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\material.cpp" />
     <ClCompile Include="src\plane.cpp" />
+    <ClCompile Include="src\quad.cpp" />
     <ClCompile Include="src\scene.cpp" />
     <ClCompile Include="src\sdl_rendering.cpp" />
     <ClCompile Include="src\sphere.cpp" />

@@ -27,3 +27,10 @@ void write_color(std::ostream& out, glm::dvec3 pixel_color, int samples_per_pixe
 		<< gamma_corrected_255.g << ' '
 		<< gamma_corrected_255.b << '\n';
 }
+
+glm::dvec3 color_255_to_01(glm::dvec3 in){
+	return glm::dvec3(in.x/255, in.y/255, in.z/255);
+}
+glm::dvec3 color_255_to_01(double x, double y, double z){
+	return glm::dvec3(x/255, y/255, z/255);
+}

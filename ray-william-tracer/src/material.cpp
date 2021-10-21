@@ -35,7 +35,7 @@ bool Lambertian::scatter(const Ray& ray_in, const hit_record& rec, glm::dvec3& a
     scattered = Ray(rec.p, scatter_direction);
 
     // Get light diffusion
-    double diffusion = glm::max(0.3, scene->light_ray_pass(rec));
+    double diffusion = glm::max(1.0, scene->light_ray_pass(rec));
 
     // Do we have texture?
     Texture* texture = rec.hittable_ptr.get()->getTexture();
