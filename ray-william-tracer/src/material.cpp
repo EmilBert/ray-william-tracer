@@ -11,7 +11,7 @@
 bool Metal::scatter(const Ray& r_in, const hit_record& rec, glm::dvec3& attenuation, Ray& scattered, Scene* scene) const
 {
     glm::dvec3 reflected = glm::reflect(glm::normalize(r_in.direction()), rec.normal);
-    scattered = Ray(rec.p, reflected);
+    scattered = Ray(rec.p, reflected + fuzz*random_unit_vector());
     attenuation = 0.8*albedo;
     return (glm::dot(scattered.direction(), rec.normal) > 0);
 }

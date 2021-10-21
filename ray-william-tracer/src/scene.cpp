@@ -18,8 +18,10 @@
 #include<thread>
 #include<vector>
 #include<future>
+#include <chrono>
 
 #define RAY_WILLIAM_MULTI_THREAD true
+#define RECORD_RENDER_TIME true
 #define MIN_LIGHT_INTENSITY 0.2
 
 Scene::Scene() : camera(glm::dvec3(0,0,0), glm::dvec3(0,0,-1), glm::dvec3(0,1,0), 85, 12.0/9.0), world()
@@ -78,6 +80,10 @@ void Scene::setup_scene()
 
 void Scene::render_scene()
 {
+#if RECORD_RENDER_TIME
+	auto start_time = std::chrono::high_resolution_clock::now();
+#endif
+
 #if RAY_WILLIAM_MULTI_THREAD 
 	// Multi-threading additions
 	int max = camera.image_width * camera.image_height;
@@ -145,6 +151,13 @@ void Scene::render_scene()
 		}
 	}
 #endif
+
+#if RECORD_RENDER_TIME
+	auto stop_time = std::chrono::high_resolution_clock::now();
+	auto duration = std::chrono::duration_cast<std::chrono::seconds>(stop_time - start_time);
+	std::cout << "Render time in seconds: " << duration.count() << std::endl;
+#endif
+
 }
 
 void Scene::pixel_pass()
