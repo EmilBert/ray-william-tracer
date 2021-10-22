@@ -2,23 +2,24 @@
 
 #include<glm/geometric.hpp>
 
-glm::dvec2 Quad::getUV(const glm::dvec3& p)
-{
-	double dist_x = glm::distance(tl, tr);
-	double dist_y = glm::distance(tl, bl);
+glm::dvec2 Quad::getUV(const glm::dvec3& p) {
+	// Formula used: https://en.wikipedia.org/wiki/Vector_projection#Vector_projection_2
 
-	auto res = glm::dvec2(0, 0);
+	// U
+	auto ab = (tr - tl);
+	auto ap = (p - tl);
+	auto projected = tl + (glm::dot(ap, ab) / glm::dot(ab, ab)) * ab;
 
-	// u
-	glm::dvec3 temp = { p.x, tl.y, tl.z };
-	res.x = glm::distance(tl, temp) / dist_x;
+	double u = glm::distance(tl, projected) / glm::distance(tl, tr);
 
-	// v
-	temp = { tl.x, p.y , tl.z };
-	res.y = 1-  glm::distance(tl, temp) / dist_y;
+	// V
+	ab = (bl - tl);
+	projected = tl + (glm::dot(ap, ab) / glm::dot(ab, ab)) * ab;
+	double v = 1 - glm::distance(tl, projected) / glm::distance(tl, bl);
 
-	return res;
+	return { u,v };
 }
+
 
 Texture* Quad::getTexture() const
 {

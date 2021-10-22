@@ -25,7 +25,7 @@
 #define RECORD_RENDER_TIME false
 #define MIN_LIGHT_INTENSITY 0
 
-Scene::Scene() : camera(glm::dvec3(0.3,0,0), glm::dvec3(0,0,-1), glm::dvec3(0,1,0), 90, 12.0/9.0), world()
+Scene::Scene() : camera(glm::dvec3(0,0,0), glm::dvec3(0,0,-1), glm::dvec3(0,1,0), 90, 12.0/9.0), world()
 {
 	framebuffer = new glm::dvec3[camera.image_width * camera.image_height];
 }
@@ -63,14 +63,16 @@ void Scene::setup_scene()
 	//world.add(make_shared<Sphere>(glm::dvec3(-0.5, 0.0, -1.2), 0.35, lambertian));
 	// //world.add(make_shared<Sphere>(glm::dvec3(0, 0.0, -1.2), 0.5, lambertian_blue, texture));
 
-	auto texture = std::make_shared<Texture>();
-	glm::dvec3 origin = { 0,0,-1 };
+	auto texture = std::make_shared<ProcederulTexture>(TextureType::CHECKERED);
+	world.add(make_shared<Plane>(glm::dvec3(0, -1, 0), glm::dvec3(0, 1, 0), lambertian, texture));
+
+	glm::dvec3 origin = { 0,0,-1.5 };
 	double size = 1;
 	//world.add(std::make_shared<Quad>(
-	//	origin + glm::dvec3(-size, size, 0), // top left 
+	//	origin + glm::dvec3(-size, size, -0.5), // top left 
 	//	origin + glm::dvec3(size, size, 0), // top right
-	//	origin + glm::dvec3(-size, -size, 0),  // bottom left 
-	//	origin + glm::dvec3(size, -size, 0), lambertian, texture)
+	//	origin + glm::dvec3(-size, -size, -0.2),  // bottom left 
+	//	origin + glm::dvec3(size, -size, 0), lambertian, texture) // bottom right
 	//); 
 
 	double eps = 1e-06;
@@ -83,11 +85,11 @@ void Scene::setup_scene()
 
 	//add_cube(glm::dvec3(0.15, -0.5, -1.5), 0.2, lambertian_blue, world, glm::dvec3(0, 0, 0));
 	std::vector<glm::dvec3> v = { glm::dvec3(x + size, y, z + size), glm::dvec3(x - size, y, z + size), glm::dvec3(x + size, y, z - size), glm::dvec3(x - size, y, z - size) };
-	//world.add(make_shared<Light>(v, glm::dvec3(x, y, z), 3.0, glm::dvec3{ 1, 1, 1 }));
+	world.add(make_shared<Light>(v, glm::dvec3(x, y, z), 3.0, glm::dvec3{ 1, 1, 1 }));
 
 	//world.add(make_shared<Triangle>(someData, glm::dvec3(0,0,0), 0, lambertian));
 	//world.add(make_shared<Quad>(glm::dvec3(0, 0, -2), glm::dvec3(0, 2, -2), glm::dvec3(2, 0, -2), glm::dvec3(2, 2, -2), lambertian));
-	add_final_scene();
+	//add_final_scene();
 }
 
 void Scene::render_scene()

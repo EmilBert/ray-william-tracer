@@ -40,7 +40,7 @@ bool Lambertian::scatter(const Ray& ray_in, const hit_record& rec, glm::dvec3& a
     // Do we have texture?
     Texture* texture = rec.hittable_ptr.get()->getTexture();
 
-    attentuation = (texture != nullptr ? texture->get_pixel_value(rec.hittable_ptr.get()->getUV(rec.p)) : albedo) * diffusion;
+    attentuation = (texture != nullptr ? texture->get_pixel_value(rec.p, rec.hittable_ptr.get()->getUV(rec.p)) : albedo) * diffusion;
     return true;
 }
 

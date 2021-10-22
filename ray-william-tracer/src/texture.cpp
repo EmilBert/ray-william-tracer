@@ -6,9 +6,9 @@
 #include<iostream>
 #include<glm/common.hpp>
 
-Texture::Texture()
+ImageTexture::ImageTexture(const std::string& file_name)
 {
-	image = stbi_load("texture.jpg", &width, &height, &bytes_per_pixel, 0);
+	image = stbi_load(file_name.c_str(), &width, &height, &bytes_per_pixel, 0);
 	if (image == nullptr) {
 		std::cout << "Failed to load image" << std::endl;
 	}
@@ -18,7 +18,8 @@ Texture::Texture()
 	bytes_per_line = bytes_per_pixel * width; // How many bytes on each horizontal line
 }
 
-glm::dvec3 Texture::get_pixel_value(glm::dvec2 uv) {
+glm::dvec3 ImageTexture::get_pixel_value(const glm::dvec3& p, glm::dvec2 uv)
+{
 	if (image == nullptr)
 		return { 0,1,1 }; // Texture error color
 
@@ -39,4 +40,21 @@ glm::dvec3 Texture::get_pixel_value(glm::dvec2 uv) {
 	// Final value
 	unsigned char* pixel = image + j * bytes_per_line + i * bytes_per_pixel;
 	return glm::dvec3(pixel[0], pixel[1], pixel[2]) * color_scale;
+}
+
+glm::dvec3 ProcederulTexture::get_pixel_value(const glm::dvec3& p, glm::dvec2 uv)
+{
+	glm::dvec3 pixel_value = { 0,0,0 };
+
+	switch (texture_type) {
+	case TextureType::CHECKERED:
+		// Do checkered texturing
+		double chessboard = glm::floor(p.x) + glm::floor(p.y) + glm::floor(p.z);
+		chessboard = glm::fract(chessboard / 2.0); // Returns the decimal of the number
+		chessboard *= 2;
+		pixel_value = glm::dvec3(1,1,1) * chessboard;
+		break;
+	}
+
+	return pixel_value;
 }

@@ -24,3 +24,13 @@ bool Plane::hit(const Ray& ray, double t_min, double t_max, hit_record& rec) con
 
     return false;
 }
+
+glm::dvec2 Plane::getUV(const glm::dvec3& p)
+{
+    return { 0,0 };
+}
+
+Texture* Plane::getTexture() const
+{
+    return texture_ptr.get();
+}
