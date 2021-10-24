@@ -15,7 +15,6 @@ struct Texture {
 
 struct ImageTexture : Texture {
 	ImageTexture(const char* file_name);
-	ImageTexture();
 
 	glm::dvec3 get_pixel_value(const glm::dvec3& p, glm::dvec2 uv) override;
 
@@ -26,9 +25,10 @@ struct ImageTexture : Texture {
 
 struct ProcederulTexture : Texture {
 	// Used on objects that don't use UV mostly planes 
-	ProcederulTexture(TextureType text_t) : texture_type(text_t) {}
+	ProcederulTexture(TextureType text_t, double scale) : texture_type(text_t), scale(scale) {}
 
 	glm::dvec3 get_pixel_value(const glm::dvec3& p, glm::dvec2 uv) override;
 
 	TextureType texture_type;
+	double scale;
 };

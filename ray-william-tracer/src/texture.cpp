@@ -5,20 +5,9 @@
 
 #include<iostream>
 #include<glm/common.hpp>
+#include<glm/trigonometric.hpp>
 
 ImageTexture::ImageTexture(const char* file_name)
-{
-	image = stbi_load(file_name, &width, &height, &bytes_per_pixel, 0);
-	if (image == nullptr) {
-		std::cout << "Failed to load image" << std::endl;
-	}
-	if (bytes_per_pixel != 3) {
-		std::cout << "Warning, loading an image with 4 channels (not supported)" << std::endl;
-	}
-	bytes_per_line = bytes_per_pixel * width; // How many bytes on each horizontal line
-}
-
-ImageTexture::ImageTexture()
 {
 	image = stbi_load(file_name, &width, &height, &bytes_per_pixel, 0);
 	if (image == nullptr) {
@@ -59,12 +48,13 @@ glm::dvec3 ProcederulTexture::get_pixel_value(const glm::dvec3& p, glm::dvec2 uv
 	glm::dvec3 pixel_value = { 0,0,0 };
 
 	switch (texture_type) {
-	case TextureType::CHECKERED:
 		// Do checkered texturing
-		double chessboard = glm::floor(p.x) + glm::floor(p.y) + glm::floor(p.z);
-		chessboard = glm::fract(chessboard / 2.0); // Returns the decimal of the number
-		chessboard *= 2;
-		pixel_value = glm::dvec3(1,1,1) * chessboard;
+	case TextureType::CHECKERED:
+		auto sines = glm::sin(scale * p.x) * glm::sin(scale * p.y) * glm::sin(scale * p.z);
+		if (sines < 0)
+			pixel_value = glm::dvec3(0, 0, 0);
+		else
+			pixel_value = glm::dvec3(1, 1, 1);
 		break;
 	}
 
