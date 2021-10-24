@@ -6,7 +6,6 @@
 #include<glm/vec3.hpp>
 #include<glm/vec2.hpp>
 
-class Texture;
 class Material;
 // Abstract class
 
@@ -17,10 +16,6 @@ public:
 
 	virtual bool isLight() { return false; }
 
-	// Each hittable can override this to describe its UV at a given point on its surface
-	virtual glm::dvec2 getUV(const glm::dvec3& p) { return { 0.0, 0.0 }; }
-
-	// Each hittable has the ability to have a texture attached to it
-	virtual Texture* getTexture() const { return nullptr; }
-
+	// Each object handles UV differently
+	virtual glm::dvec2 getUV(const glm::dvec3& p) { return glm::dvec2(0, 0); }
 };

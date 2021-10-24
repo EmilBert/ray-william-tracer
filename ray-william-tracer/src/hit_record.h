@@ -17,10 +17,6 @@ struct hit_record {
 	bool front_face;
 	std::shared_ptr<Hittable> hittable_ptr;
 
-	inline void set_face_normal(const Ray& ray, const glm::dvec3& outward_normal) {
-		front_face = glm::dot(ray.direction(), outward_normal) < 0;
-		normal = front_face ? outward_normal : -outward_normal;
-	}
-
+	void set_face_normal(const Ray& ray, const glm::dvec3& outward_normal);
 
 };

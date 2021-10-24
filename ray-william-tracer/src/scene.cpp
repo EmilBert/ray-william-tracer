@@ -35,8 +35,13 @@ void Scene::setup_scene()
 	// auto material_ground = make_shared<Lambertian>(glm::dvec3(1.0, 1.0, 1.0));
 	// auto lambertian_red = make_shared<Lambertian>(glm::dvec3(1.0, 0, 0));
 	// auto lambertian_green = make_shared<Lambertian>(glm::dvec3(0, 1.0, 0));
-	// auto lambertian_blue = make_shared<Lambertian>(glm::dvec3(0, 0, 1));
+	auto lambertian_blue = make_shared<Lambertian>(glm::dvec3(0, 0, 1));
 	auto lambertian = make_shared<Lambertian>(glm::dvec3(1, 1, 0));
+	auto lambertian_textured = make_shared<Lambertian>(glm::dvec3(1, 1, 1));
+	auto texture = std::make_shared<ImageTexture>();
+	
+	// Set texture
+	lambertian_textured->texture = texture;
 
 	// auto dielectric = make_shared<Dielectric>(1.5);
 	// auto metal = make_shared<Metal>(glm::dvec3(1.0, 1.0, 1.0), 0);
@@ -61,10 +66,9 @@ void Scene::setup_scene()
 	//addCube(glm::dvec3(0.5, 0.5, -1.5), 0.2, dielectric, world, glm::dvec3(0, 20.0, 0));
 	//addCube(glm::dvec3(0, 0, -1), 0.1, diffuse_light, world, glm::dvec3(0, 0, 0));
 	//world.add(make_shared<Sphere>(glm::dvec3(-0.5, 0.0, -1.2), 0.35, lambertian));
-	// //world.add(make_shared<Sphere>(glm::dvec3(0, 0.0, -1.2), 0.5, lambertian_blue, texture));
+	world.add(make_shared<Sphere>(glm::dvec3(0, 0.0, -1.2), 0.5, lambertian_blue));
 
-	auto texture = std::make_shared<ProcederulTexture>(TextureType::CHECKERED);
-	world.add(make_shared<Plane>(glm::dvec3(0, -1, 0), glm::dvec3(0, 1, 0), lambertian, texture));
+	//world.add(make_shared<Plane>(glm::dvec3(0, -1, 0), glm::dvec3(0, 1, 0), lambertian, texture));
 
 	glm::dvec3 origin = { 0,0,-1.5 };
 	double size = 1;
@@ -72,7 +76,7 @@ void Scene::setup_scene()
 	//	origin + glm::dvec3(-size, size, -0.5), // top left 
 	//	origin + glm::dvec3(size, size, 0), // top right
 	//	origin + glm::dvec3(-size, -size, -0.2),  // bottom left 
-	//	origin + glm::dvec3(size, -size, 0), lambertian, texture) // bottom right
+	//	origin + glm::dvec3(size, -size, 0), lambertian) // bottom right
 	//); 
 
 	double eps = 1e-06;
@@ -155,7 +159,7 @@ void Scene::render_scene()
 				double u = (i + random_double()) / (camera.image_width - 1);
 				double v = (j + random_double()) / (camera.image_height - 1);
 				Ray r = camera.get_ray(u, v);
-				pixel_color += ray_color(r, world, 0);
+				pixel_color += trace_ray(r, world, 0);
 			}
 			//pixel_color = ray_color(camera.get_ray(i,j), bg, world, camera.max_depth);
 
@@ -229,12 +233,12 @@ glm::dvec3 Scene::trace_ray(const Ray& ray, const Hittable& world, int depth) co
 		rec.mat_ptr->scatter(ray, rec, attenuation, scattered, (Scene*)this);
 
 		// Do we terminate?
-		if (rec.mat_ptr->terminate_ray(++depth, min_depth, max_depth, attenuation)) {
+		if (rec.mat_ptr->terminate_ray(depth, min_depth, max_depth, attenuation)) {
 			return attenuation;
 		}
 
 		// Send another ray with recursion in the scattered direction
-		return attenuation * trace_ray(scattered, world, depth);
+		return attenuation * trace_ray(scattered, world, ++depth);
 	}
 
 	return bg; 

@@ -1,4 +1,4 @@
-#include"texture.h"
+#include "texture.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include<stb_image.h>
@@ -6,9 +6,21 @@
 #include<iostream>
 #include<glm/common.hpp>
 
-ImageTexture::ImageTexture(const std::string& file_name)
+ImageTexture::ImageTexture(const char* file_name)
 {
-	image = stbi_load(file_name.c_str(), &width, &height, &bytes_per_pixel, 0);
+	image = stbi_load(file_name, &width, &height, &bytes_per_pixel, 0);
+	if (image == nullptr) {
+		std::cout << "Failed to load image" << std::endl;
+	}
+	if (bytes_per_pixel != 3) {
+		std::cout << "Warning, loading an image with 4 channels (not supported)" << std::endl;
+	}
+	bytes_per_line = bytes_per_pixel * width; // How many bytes on each horizontal line
+}
+
+ImageTexture::ImageTexture()
+{
+	image = stbi_load(file_name, &width, &height, &bytes_per_pixel, 0);
 	if (image == nullptr) {
 		std::cout << "Failed to load image" << std::endl;
 	}

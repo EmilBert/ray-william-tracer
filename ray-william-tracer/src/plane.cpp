@@ -29,8 +29,3 @@ glm::dvec2 Plane::getUV(const glm::dvec3& p)
 {
     return { 0,0 };
 }
-
-Texture* Plane::getTexture() const
-{
-    return texture_ptr.get();
-}

@@ -1,10 +1,10 @@
 #include"material.h"
 
+#include<glm/common.hpp>
+
 #include"light.h"
 #include"scene.h"
 #include"texture.h"
-
-#include<glm/common.hpp>
 
 /* METAL */
 
@@ -33,20 +33,21 @@ bool Lambertian::scatter(const Ray& ray_in, const hit_record& rec, glm::dvec3& a
         scatter_direction = rec.normal;
 
     scattered = Ray(rec.p, scatter_direction);
-
+    
     // Get light diffusion
-    double diffusion = glm::max(1.0, scene->light_ray_pass(rec));
+    double diffusion = glm::max(0.3, scene->light_ray_pass(rec));
 
-    // Do we have texture?
-    Texture* texture = rec.hittable_ptr.get()->getTexture();
+    // Texture contribution factor, 1,1,1 if no textue is attached
+    //glm::dvec3 texture_contrib = texture ? texture->get_pixel_value(rec.p, rec.hittable_ptr->getUV(rec.p)) : glm::dvec3(1, 1, 1);
 
-    attentuation = (texture != nullptr ? texture->get_pixel_value(rec.p, rec.hittable_ptr.get()->getUV(rec.p)) : albedo) * diffusion;
+    attentuation = albedo * diffusion;
+
     return true;
 }
 
 bool Lambertian::terminate_ray(int depth, int min_depth, int max_depth, glm::dvec3& attenuation) const
 {
-    if (++depth > min_depth) {
+    if (depth > min_depth) {
         // Threshold creation, grab the maximum color value
         double p = glm::max(attenuation.r, glm::max(attenuation.g, attenuation.b));
         if (random_double() > p) {

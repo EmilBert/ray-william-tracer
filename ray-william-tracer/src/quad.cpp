@@ -20,12 +20,6 @@ glm::dvec2 Quad::getUV(const glm::dvec3& p) {
 	return { u,v };
 }
 
-
-Texture* Quad::getTexture() const
-{
-	return texture_ptr.get();
-}
-
 bool Quad::hit(const Ray& ray, double t_min, double t_max, hit_record& rec) const
 {
 	if (t0.hit(ray, t_min, t_max, rec)) return true;

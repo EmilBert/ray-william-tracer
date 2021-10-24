@@ -1,7 +1,5 @@
 #include "scene.h"
 
-#include"texture.h"
-
 int main() {
 
 	Scene scene;
