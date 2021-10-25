@@ -17,4 +17,3 @@ class Sphere : public Hittable {
 		double radius;
 		std::shared_ptr<Material> mat_ptr;
 };
-
