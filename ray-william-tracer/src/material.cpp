@@ -36,6 +36,7 @@ bool Lambertian::scatter(const Ray& ray_in, const hit_record& rec, glm::dvec3& a
     
     // Get light diffusion
     double diffusion = glm::max(0.3, scene->light_ray_pass(rec));
+    // double diffusion = scene->estimation_from_global_map(rec)
 
     // Texture contribution factor, 1,1,1 if no textue is attached
     glm::dvec3 texture_contrib = texture ? texture->get_pixel_value(rec.p, rec.hittable_ptr->getUV(rec.p)) : glm::dvec3(1, 1, 1);

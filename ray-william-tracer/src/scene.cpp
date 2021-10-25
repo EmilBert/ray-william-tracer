@@ -82,6 +82,13 @@ void Scene::setup_scene()
 
 void Scene::render_scene()
 {
+	/*
+	Go through each light, trace rays, store in data-structure
+	2 maps:
+	global photon map
+	caustics photon map
+	*/
+	
 #if RECORD_RENDER_TIME
 	auto start_time = std::chrono::high_resolution_clock::now();
 #endif
