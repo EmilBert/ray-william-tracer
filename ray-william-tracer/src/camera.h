@@ -27,7 +27,7 @@ public:
 		// Some screen constants
 		image_width = 400; 
 		image_height = static_cast<int>(image_width / aspect_ratio);
-		samples_per_pixel = 200;
+		samples_per_pixel = 60;
 
 		// Positionals
 		origin = lookfrom;

@@ -1,11 +1,12 @@
 #include"sdl_rendering.h"
 
+#include"color.h"
 #include<glm/vec2.hpp>
 
 #include <SDL.h>
 #undef main
 
-void render_framebuffer_as_SDL(const glm::dvec3* framebuffer, int buffer_width, int buffer_height)
+void render_framebuffer_as_SDL(const glm::dvec3* framebuffer, int buffer_width, int buffer_height, int samples_per_pixel)
 {
     SDL_Event event;
     SDL_Renderer* renderer;
@@ -25,9 +26,11 @@ void render_framebuffer_as_SDL(const glm::dvec3* framebuffer, int buffer_width, 
             iP.y++;
         }
 
-        // Draw the pixel
         glm::dvec3 pixel_color = framebuffer[i];
-        SDL_SetRenderDrawColor(renderer, pixel_color.r, pixel_color.g, pixel_color.b, 255);
+        // Convert to correct using the correction function from color
+        auto pixel_color_255 = get_gamma_corrected_rgb_255(pixel_color, samples_per_pixel);
+        // Draw the pixel
+        SDL_SetRenderDrawColor(renderer, pixel_color_255.r, pixel_color_255.g, pixel_color_255.b, 255);
         SDL_RenderDrawPoint(renderer, iP.x, iP.y);
 
         iP.x++;

@@ -5,8 +5,7 @@
 
 class Light;
 class Scene;
-
-#include<glm/geometric.hpp>
+class Texture;
 
 class Material {
 public:
@@ -64,6 +63,7 @@ public:
 
 public:
     glm::dvec3 albedo;
+    std::shared_ptr<Texture> texture;
 };
 
 class Dielectric : public Material {

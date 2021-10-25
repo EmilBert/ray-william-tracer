@@ -10,8 +10,8 @@ int main() {
 	scene.render_scene();
 
 	// Now write our render to file "image.ppm"
-	scene.write_render_to_file("image.ppm");
-	//scene.view_render_in_SDL();
+	//scene.write_render_to_file("image.ppm");
+	scene.view_render_in_SDL();
 
 	return 0;
 }

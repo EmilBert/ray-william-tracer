@@ -9,6 +9,8 @@
 #include"light.h"
 #include"sdl_rendering.h"
 #include"plane.h"
+#include"quad.h"
+#include"texture.h"
 
 #define NOMINMAX
 #include<glm/vec3.hpp>
@@ -17,12 +19,13 @@
 #include<thread>
 #include<vector>
 #include<future>
-#include<asyncinfo.h>
+#include <chrono>
 
 #define RAY_WILLIAM_MULTI_THREAD true
-#define MIN_LIGHT_INTENSITY 0.2
+#define RECORD_RENDER_TIME false
+#define MIN_LIGHT_INTENSITY 0
 
-Scene::Scene() : camera(glm::dvec3(0,0,0), glm::dvec3(0,0,-1), glm::dvec3(0,1,0), 85, 12.0/9.0), world()
+Scene::Scene() : camera(glm::dvec3(0,0,-0.1), glm::dvec3(0,0,-1), glm::dvec3(0,1,0), 90, 12.0/9.0), world()
 {
 	framebuffer = new glm::dvec3[camera.image_width * camera.image_height];
 }
@@ -34,49 +37,62 @@ void Scene::setup_scene()
 	auto lambertian_green = make_shared<Lambertian>(glm::dvec3(0, 1.0, 0));
 	auto lambertian_blue = make_shared<Lambertian>(glm::dvec3(0, 0, 1));
 	auto lambertian = make_shared<Lambertian>(glm::dvec3(1, 1, 0));
+	auto lambertian_textured = make_shared<Lambertian>(glm::dvec3(1, 1, 1));
 
-	auto dielectric = make_shared<Dielectric>(1.5);
-	auto metal = make_shared<Metal>(glm::dvec3(1.0, 1.0, 1.0), 0);
-	auto unlit = make_shared<Unlit>(glm::dvec3(1.0, 0.0, 0.0));
+	auto texture = make_shared<ProcederulTexture>(TextureType::CHECKERED, 10);
+	//auto texture = make_shared<ImageTexture>("texture.jpg");
+	lambertian_textured->texture = texture;
 
-	//// Floor
-	//world.add(std::make_shared<Plane>(glm::dvec3(0, -1, 0), glm::dvec3(0, 1, 0), material_ground ));
-	//// Roof
-	//world.add(std::make_shared<Plane>(glm::dvec3(0, 1, 0), glm::dvec3(0, -1, 0), material_ground ));
-	//// Left wall
-	//world.add(std::make_shared<Plane>(glm::dvec3(-1, 0, 0), glm::dvec3(1, 0, 0), lambertian_green ));
-	//// Right wall
-	//world.add(std::make_shared<Plane>(glm::dvec3(1, 0, 0), glm::dvec3(-1, 0, 0), lambertian_red ));
-	//// Front wall
-	//world.add(std::make_shared<Plane>(glm::dvec3(0, 0, -2), glm::dvec3(0, 0, 1), material_ground ));
-	//// Back wall
-	//world.add(std::make_shared<Plane>(glm::dvec3(0, 0, 0), glm::dvec3(0, 0, -1), lambertian_red ));
-
-	add_mark_room(glm::dvec3(0, 0, -1), 1, material_ground, lambertian_red, lambertian_green, lambertian_blue, lambertian_red, lambertian_green, lambertian_blue);
+	add_cornell_box(glm::dvec3(0, 0, -1), 1, lambertian_textured, lambertian_red, lambertian_green);
+	
+	//add_mark_room(glm::dvec3(0, 0, -1), 1, material_ground, lambertian_red, lambertian_green, lambertian_blue, lambertian_red, lambertian_green, lambertian_blue);
 	//add_mark_room(glm::dvec3(0, 0, -1), 1, material_ground, material_ground, material_ground, material_ground, material_ground, material_ground, material_ground);
-	//add_cornell_box(glm::dvec3(0, 0, -1), 1, material_ground, material_ground, material_ground);
 	//addCube(glm::dvec3(0.5, 0.5, -1.5), 0.2, dielectric, world, glm::dvec3(0, 20.0, 0));
 	//addCube(glm::dvec3(0, 0, -1), 0.1, diffuse_light, world, glm::dvec3(0, 0, 0));
 	//world.add(make_shared<Sphere>(glm::dvec3(-0.5, 0.0, -1.2), 0.35, lambertian));
-	world.add(make_shared<Sphere>(glm::dvec3(-0.6, 0.0, -1.2), 0.2, lambertian_blue));
+	//world.add(make_shared<Sphere>(glm::dvec3(0, 0.0, -1.25), 0.2, lambertian_blue));
+
+	//world.add(make_shared<Plane>(glm::dvec3(0, -1, 0), glm::dvec3(0, 1, 0), lambertian, texture));
+
+	glm::dvec3 origin = { 0,0,-1.5 };
+	double size = 1;
+	//world.add(std::make_shared<Quad>(
+	//	origin + glm::dvec3(-size, size, -0.5), // top left 
+	//	origin + glm::dvec3(size, size, 0), // top right
+	//	origin + glm::dvec3(-size, -size, -0.2),  // bottom left 
+	//	origin + glm::dvec3(size, -size, 0), lambertian) // bottom right
+	//); 
 
 	double eps = 1e-06;
 	double y = 1 - eps;
 	double z = -1;
-	double size = 0.25;
+	//double size = 0.25;
+	size = 0.25;
 	double x = 0;
 	//add_quad(glm::dvec3(x + size, y, z - size), glm::dvec3(x - size, y, z - size), glm::dvec3(x + size, y, z + size), glm::dvec3(x - size, y, z + size), unlit);
 
 	//add_cube(glm::dvec3(0.15, -0.5, -1.5), 0.2, lambertian_blue, world, glm::dvec3(0, 0, 0));
 	std::vector<glm::dvec3> v = { glm::dvec3(x + size, y, z + size), glm::dvec3(x - size, y, z + size), glm::dvec3(x + size, y, z - size), glm::dvec3(x - size, y, z - size) };
-	world.add(make_shared<Light>(v, glm::dvec3(x, y, z), 8.0, glm::dvec3{ 1, 1, 1 }));
+	world.add(make_shared<Light>(v, glm::dvec3(x, y, z), 3.0, glm::dvec3{ 1, 1, 1 }));
 
 	//world.add(make_shared<Triangle>(someData, glm::dvec3(0,0,0), 0, lambertian));
 	//world.add(make_shared<Quad>(glm::dvec3(0, 0, -2), glm::dvec3(0, 2, -2), glm::dvec3(2, 0, -2), glm::dvec3(2, 2, -2), lambertian));
+	//add_final_scene();
 }
 
 void Scene::render_scene()
 {
+	/*
+	Go through each light, trace rays, store in data-structure
+	2 maps:
+	global photon map
+	caustics photon map
+	*/
+	
+#if RECORD_RENDER_TIME
+	auto start_time = std::chrono::high_resolution_clock::now();
+#endif
+
 #if RAY_WILLIAM_MULTI_THREAD 
 	// Multi-threading additions
 	int max = camera.image_width * camera.image_height;
@@ -134,7 +150,7 @@ void Scene::render_scene()
 				double u = (i + random_double()) / (camera.image_width - 1);
 				double v = (j + random_double()) / (camera.image_height - 1);
 				Ray r = camera.get_ray(u, v);
-				pixel_color += ray_color(r, world, 0);
+				pixel_color += trace_ray(r, world, 0);
 			}
 			//pixel_color = ray_color(camera.get_ray(i,j), bg, world, camera.max_depth);
 
@@ -144,6 +160,13 @@ void Scene::render_scene()
 		}
 	}
 #endif
+
+#if RECORD_RENDER_TIME
+	auto stop_time = std::chrono::high_resolution_clock::now();
+	auto duration = std::chrono::duration_cast<std::chrono::seconds>(stop_time - start_time);
+	std::cout << "Render time in seconds: " << duration.count() << std::endl;
+#endif
+
 }
 
 void Scene::pixel_pass()
@@ -179,7 +202,7 @@ void Scene::view_render_in_SDL() const
 {
 	// So basically, open a SDL window, take our framebuffer and draw each pixel, shouldn't be too hard - Daivd on 13th of October 2021
 	// famous last words
-	render_framebuffer_as_SDL(framebuffer, camera.image_width, camera.image_height);
+	render_framebuffer_as_SDL(framebuffer, camera.image_width, camera.image_height, camera.samples_per_pixel);
 }
 
 glm::dvec3 Scene::trace_ray(const Ray& ray, const Hittable& world, int depth) const
@@ -191,6 +214,7 @@ glm::dvec3 Scene::trace_ray(const Ray& ray, const Hittable& world, int depth) co
 		Ray scattered;
 		glm::dvec3 attenuation;
 
+		// If we hit a light simply terminate and return tht lights color
 		if ((*rec.hittable_ptr).isLight()) {
 			return dynamic_cast<Light*>(rec.hittable_ptr.get())->light_color;
 		}
@@ -199,25 +223,13 @@ glm::dvec3 Scene::trace_ray(const Ray& ray, const Hittable& world, int depth) co
 		// Light contribution gets spent into attenuation
 		rec.mat_ptr->scatter(ray, rec, attenuation, scattered, (Scene*)this);
 
-		if (rec.mat_ptr->terminate_ray(++depth, min_depth, max_depth, attenuation)) {
+		// Do we terminate?
+		if (rec.mat_ptr->terminate_ray(depth, min_depth, max_depth, attenuation)) {
 			return attenuation;
 		}
-		//// Russian roulette if we exceed min depth
-		//if (++depth > min_depth) {
-		//	// Threshold creation, grab the maximum color value
-		//	double p = glm::max(attenuation.r, glm::max(attenuation.g, attenuation.b));
-		//	if (random_double() > p) {
-		//		// Break
-		//		return attenuation;
-		//	}
-		//	else {
-		//		// Add the energy we 'lose' by randomly terminating paths
-		//		attenuation *= 1 / p;
-		//	}
-		//}
 
-		// Send another ray with recursion
-		return attenuation * trace_ray(scattered, world, depth);
+		// Send another ray with recursion in the scattered direction
+		return attenuation * trace_ray(scattered, world, ++depth);
 	}
 
 	return bg; 
@@ -226,9 +238,7 @@ glm::dvec3 Scene::trace_ray(const Ray& ray, const Hittable& world, int depth) co
 double Scene::light_ray_pass(const hit_record& rec) const
 {
 	double brightness = 0.0;
-	for (int i : this->world.light_indices) {
-		// get the light
-		auto l = dynamic_cast<Light*>(this->world.objects[i].get());
+	for (auto l : world.lights) {
 
 		const int N = 6;
 		//glm::dvec3 G = { 0,0,0 };
@@ -280,30 +290,12 @@ void Scene::add_quad(const glm::dvec3& bottomLeft, const glm::dvec3& bottomRight
 
 void Scene::add_cornell_box(const glm::dvec3& origin, double radius, shared_ptr<Material> m, shared_ptr<Material> left, shared_ptr<Material> right)
 {
-    double x1 = origin.x - radius; 
-	double x2 = origin.x + radius;
-	double y1 = origin.y - radius;
-	double y2 = origin.y + radius;
-	double z1 = origin.z - radius;
-	double z2 = origin.z + radius;
-	
-    glm::dvec3 v0{ x1, y1, z1 };
-	glm::dvec3 v1{ x1, y2, z1 };
-	glm::dvec3 v2{ x2, y2, z1 };
-	glm::dvec3 v3{ x2, y1, z1 };
-	glm::dvec3 v4{ x1, y1, z2 };
-	glm::dvec3 v5{ x1, y2, z2 };
-	glm::dvec3 v6{ x2, y2, z2 };
-	glm::dvec3 v7{ x2, y1, z2 };
-
-	glm::dvec3 translation = { 0,0,0.1 };
-
-	add_quad(v4, v0, v5, v1, left); // left
-	add_quad(v0+translation, v3+translation, v1+translation, v2+translation, m); // front wall
-	add_quad(v3, v7, v2, v6, right);  // right wall
-	add_quad(v7-translation,v4-translation,v6-translation,v5-translation, m); // <- backwall
-	add_quad(v4, v7, v0, v3, m); // golvet
-	add_quad(v1, v2, v5, v6, m); // taket
+	world.add(make_shared<Plane>(origin + glm::dvec3(0, -radius, 0), glm::dvec3(0, 1, 0), m)); // Floor
+	world.add(make_shared<Plane>(origin + glm::dvec3(0, radius, 0), glm::dvec3(0, -1, 0), m)); // Roof
+	world.add(make_shared<Plane>(origin + glm::dvec3(-radius, 0, 0), glm::dvec3(1, 0, 0), left)); // Left
+	world.add(make_shared<Plane>(origin + glm::dvec3(radius, 0, 0), glm::dvec3(-1,0,0), right)); // Right
+	world.add(make_shared<Plane>(origin + glm::dvec3(0, 0, radius), glm::dvec3(0, 0, -1), m)); // Front
+	world.add(make_shared<Plane>(origin + glm::dvec3(0, 0, -radius), glm::dvec3(0, 0, 1), m)); // Back
 }
 
 /**
@@ -425,6 +417,7 @@ void Scene::add_cube(const glm::dvec3& origin, double radius, shared_ptr<Materia
 	
     // Rotation on local axis
 	//v0 = o + rotQuad * (glm::vec3(v0) - o);
+	
 	// Global Rotation
 	//v0 = rotQuad * glm::vec3(v0);
 	
@@ -444,6 +437,48 @@ void Scene::add_cube(const glm::dvec3& origin, double radius, shared_ptr<Materia
 	add_quad(v7, v4, v3, v0, m);
 	add_quad(v2, v1, v6, v5, m);
 }
+
+void Scene::add_final_scene(){
+	
+
+	// Define Materials
+	// Walls
+	auto l_orange 	= make_shared<Lambertian>(color_255_to_01(243, 126, 65));
+	auto l_pink   	= make_shared<Lambertian>(color_255_to_01(216, 36, 84));
+	auto l_turk  	= make_shared<Lambertian>(color_255_to_01(0, 190, 178));
+	auto l_blue   	= make_shared<Lambertian>(color_255_to_01(33, 73, 99));
+	auto l_green 	= make_shared<Lambertian>(color_255_to_01(243, 126, 65));
+	auto l_sage 	= make_shared<Lambertian>(color_255_to_01(44, 94, 46));
+
+	//Floor & Ceiling
+	auto walls_and_ceiling 	= make_shared<Lambertian>(glm::dvec3(1,1,1));
+
+	// Objects
+	auto lambertian_object = make_shared<Lambertian>(color_255_to_01(44, 94, 46));;
+	auto glass = make_shared<Dielectric>(1.5);
+	auto mirror = make_shared<Metal>(glm::dvec3(1.0, 1.0, 1.0), 0);
+	auto fuzzy_metal = make_shared<Metal>(glm::dvec3(1.0, 1.0, 1.0), 0.2);
+
+	// Define Objects
+	add_cube(glm::dvec3(0.5, 0.5, -1.5), 0.2, fuzzy_metal, world, glm::dvec3(0, 20.0, 0));
+	add_cube(glm::dvec3(-0.4, -0.3, -0.8), 0.2, lambertian_object, world, glm::dvec3(0, 20.0, 0));
+	world.add(make_shared<Sphere>(glm::dvec3(-0.5, 0.0, -1.2), 0.35, mirror));
+	//world.add(make_shared<Sphere>(glm::dvec3(-0.5, 0.0, -1.2), 0.35, glass));
+
+	double eps = 1e-06;
+	double y = 1 - eps;
+	double z = -1;
+	double size = 0.25;
+	double x = 0;
+
+	//add_cube(glm::dvec3(0.15, -0.5, -1.5), 0.2, lambertian_blue, world, glm::dvec3(0, 0, 0));
+	std::vector<glm::dvec3> v = { glm::dvec3(x + size, y, z + size), glm::dvec3(x - size, y, z + size), glm::dvec3(x + size, y, z - size), glm::dvec3(x - size, y, z - size) };
+	world.add(make_shared<Light>(v, glm::dvec3(x, y, z), 3.0, glm::dvec3{ 1, 1, 1 }));
+
+	// Create_mark_room
+	add_mark_room(glm::dvec3(0, 0, -1), 1, walls_and_ceiling, l_orange, l_pink, l_turk, l_blue, l_green, l_sage);
+}
+
 
 
 
