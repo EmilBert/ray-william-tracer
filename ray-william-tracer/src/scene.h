@@ -54,6 +54,6 @@ public:
 	int min_depth = 4;
 	int max_depth = 8;
 	glm::dvec3* framebuffer;
-	glm::dvec3 bg = { 0.7, 0.7, 0.7 }; 
+	glm::dvec3 bg = { 1,1,1 }; 
 
 };

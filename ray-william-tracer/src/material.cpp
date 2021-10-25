@@ -86,3 +86,14 @@ bool Dielectric::scatter(const Ray& ray_in, const hit_record& rec, glm::dvec3& a
     scattered = Ray(rec.p, refracted);
     return true;
 }
+
+bool Unlit::scatter(const Ray& r_in, const hit_record& rec, glm::dvec3& attenuation, Ray& scattered, Scene* scene) const
+{
+    if (texture.get() != nullptr) {
+        attenuation = texture->get_pixel_value(rec.p, rec.hittable_ptr->getUV(rec.p));
+    }
+    else {
+        attenuation = color;
+    }
+    return true;
+}
