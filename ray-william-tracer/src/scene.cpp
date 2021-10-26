@@ -25,7 +25,7 @@
 #define RECORD_RENDER_TIME false
 #define MIN_LIGHT_INTENSITY 0
 
-Scene::Scene() : camera(glm::dvec3(0,0,0.8), glm::dvec3(0,0,-1), glm::dvec3(0,1,0), 100, 12.0/9.0), world()
+Scene::Scene() : camera(glm::dvec3(0,0,-0.5), glm::dvec3(0,0,-1), glm::dvec3(0,1,0), 90, 12.0/9.0), world()
 {
 	framebuffer = new glm::dvec3[camera.image_width * camera.image_height];
 }
@@ -35,7 +35,8 @@ void Scene::setup_scene()
 //#define SPHERE_UNLIT_SCENE
 //#define SPHERE_DIFFUSE_SCENE1
 //#define SCENEFOR252
-#define CORNELL_BOX_WITH_LIGHTS_AND_SHADOWS
+//#define CORNELL_BOX_WITH_LIGHTS_AND_SHADOWS
+#define DAVE_SCENE
 
 #ifdef SPHERE_UNLIT_SCENE
 	auto unlit_blue = make_shared<Unlit>(glm::dvec3(0, 0, 1));
@@ -67,6 +68,36 @@ void Scene::setup_scene()
 	auto m = make_shared<Lambertian>(glm::dvec3(1.0, 1.0, 1.0));
 	add_cornell_box(glm::dvec3(0, 0, -1), 1, m, left, right);
 #endif
+
+#ifdef DAVE_SCENE
+	auto right_wall = color_255_to_01({ 61, 122, 179 });
+	auto left_wall = color_255_to_01({ 200, 93, 211 });
+	auto right = make_shared<Lambertian>(right_wall);
+	auto left = make_shared<Lambertian>(left_wall);
+	auto m = make_shared<Lambertian>(glm::dvec3(1.0, 1.0, 1.0));
+	//add_cornell_box(glm::dvec3(0, 0, -1), 1, m, left, right);
+	
+	double eps = 1e-06;
+	double y = 2 - eps;
+	double z = -1;
+	double size = 1.5;
+	double x = 0;
+	std::vector<glm::dvec3> v = { glm::dvec3(x + size, y, z + size), glm::dvec3(x - size, y, z + size), glm::dvec3(x + size, y, z - size), glm::dvec3(x - size, y, z - size) };
+	world.add(make_shared<Light>(v, glm::dvec3(x, y, z), 3.0, glm::dvec3{ 1, 1, 1 }));
+
+	// Add skybox
+	add_cube_map("images/top.jpg", "images/bottom.jpg", "images/left.jpg", "images/right.jpg", "images/front.jpg", "images/back.jpg");
+
+	// Add sphere
+	auto texture = make_shared<ImageTexture>("images/brick_base.jpg");
+	auto normal = make_shared<ImageTexture>("images/brick_normal.jpg");
+	auto brick_texture = make_shared<Lambertian>(glm::dvec3(1, 1, 1));
+	brick_texture->texture = texture;
+	brick_texture->normal_map = normal;
+	world.add(make_shared<Sphere>(glm::dvec3(0, 0, -1), 0.3, brick_texture));
+
+#endif
+
 }
 
 void Scene::render_scene()
