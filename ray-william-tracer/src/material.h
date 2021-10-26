@@ -67,6 +67,7 @@ public:
 public:
     glm::dvec3 albedo;
     std::shared_ptr<Texture> texture;
+    shared_ptr<Texture> normal_map;
 };
 
 class Dielectric : public Material {

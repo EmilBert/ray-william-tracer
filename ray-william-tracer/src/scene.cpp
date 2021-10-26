@@ -275,7 +275,7 @@ glm::dvec3 Scene::trace_ray(const Ray& ray, const Hittable& world, int depth) co
 	return bg; 
 }
 
-double Scene::light_ray_pass(const hit_record& rec) const
+double Scene::light_ray_pass(const glm::dvec3& position, const glm::dvec3& normal) const
 {
 	double brightness = 0.0;
 	for (auto l : world.lights) {
@@ -289,21 +289,21 @@ double Scene::light_ray_pass(const hit_record& rec) const
 			glm::dvec3 randomLightPos = l->getRandomPosition();
 
 			bool seenByLight = true; // flag
-			glm::dvec3 toLight = (randomLightPos - rec.p); // vector pointing to our randomLightPos
+			glm::dvec3 toLight = (randomLightPos - position); // vector pointing to our randomLightPos
 			glm::dvec3 toLightNormalized = glm::normalize(toLight);
 
 			// Shoot our ray to sample point
-			Ray pointToSamplePoint(rec.p, toLightNormalized);
+			Ray pointToSamplePoint(position, toLightNormalized);
 			hit_record light_record; // unused
 			if (world.hit(pointToSamplePoint, 0.001, infinity, light_record)) {
-				if (glm::distance(rec.p, light_record.p) < glm::distance(rec.p, randomLightPos)) {
+				if (glm::distance(position, light_record.p) < glm::distance(position, randomLightPos)) {
 					seenByLight = false;
 				}
 			}
 
 			if (seenByLight) {
 				// From mark's lecture, somehow works, what's the difference from normal diffuse shading?
-				double cosThetaIn = glm::dot(toLightNormalized, rec.normal);
+				double cosThetaIn = glm::dot(toLightNormalized, normal);
 				double cosThetaL = glm::dot(-toLightNormalized, l->t0.normal);
 				G += (cosThetaIn * cosThetaL) / glm::length(toLight) * l->intensity;
 			}

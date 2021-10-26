@@ -23,7 +23,7 @@ public:
 	glm::dvec3 trace_ray(const Ray& ray, const Hittable& world, int depth) const;
 	
 	/* Returns the factor G for hit_record */
-	double light_ray_pass(const hit_record& rec) const;
+	double light_ray_pass(const glm::dvec3& position, const glm::dvec3& normal) const;
 
 	// Adds a quad to the world
 	void add_quad(const glm::dvec3& bottomLeft, const glm::dvec3& bottomRight, const glm::dvec3& topLeft, const glm::dvec3& topRight, shared_ptr<Material> m);

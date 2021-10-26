@@ -34,12 +34,21 @@ bool Lambertian::scatter(const Ray& ray_in, const hit_record& rec, glm::dvec3& a
 
     scattered = Ray(rec.p, scatter_direction);
     
+    auto uv_coords = glm::dvec2(0,0);
+    auto normal = rec.normal;
+    if(texture){
+        uv_coords = rec.hittable_ptr->getUV(rec.p);
+        if(normal_map){
+            normal = normal_map->get_pixel_value(rec.p, uv_coords); 
+        }
+    }    
+
     // Get light diffusion
-    double diffusion = glm::max(0.3, scene->light_ray_pass(rec));
+    double diffusion = glm::max(0.3, scene->light_ray_pass(rec.p, normal));
     // double diffusion = scene->estimation_from_global_map(rec)
 
     // Texture contribution factor, 1,1,1 if no textue is attached
-    glm::dvec3 texture_contrib = texture ? texture->get_pixel_value(rec.p, rec.hittable_ptr->getUV(rec.p)) : glm::dvec3(1, 1, 1);
+    glm::dvec3 texture_contrib = texture ? texture->get_pixel_value(rec.p, uv_coords) : glm::dvec3(1, 1, 1);
 
     attentuation = albedo * diffusion * texture_contrib;
 
