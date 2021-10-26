@@ -3,6 +3,8 @@
 #include<glm/vec3.hpp>
 #include<glm/vec2.hpp>
 
+#include<string>
+
 enum class TextureType {
 	CHECKERED, // Classic checkered board texture
 };
@@ -14,7 +16,7 @@ struct Texture {
 };
 
 struct ImageTexture : Texture {
-	ImageTexture(const char* file_name);
+	ImageTexture(const std::string& file);
 
 	glm::dvec3 get_pixel_value(const glm::dvec3& p, glm::dvec2 uv) override;
 

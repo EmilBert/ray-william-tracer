@@ -46,13 +46,16 @@ public:
 	// Adds a cube to the world
 	void add_cube(const glm::dvec3& origin, double radius, shared_ptr<Material> m, HittableList& world_ref, glm::dvec3 rot);
 
+	// Skybox function thingy
+	void add_cube_map(const std::string& top, const std::string& bottom, const std::string& left, const std::string& right, const std::string& front, const std::string& back);
+
 	void add_final_scene();
 
 public:
 	HittableList world;
 	Camera camera;
-	int min_depth = 4;
-	int max_depth = 8;
+	int min_depth = 6;
+	int max_depth = 12;
 	glm::dvec3* framebuffer;
 	glm::dvec3 bg = { 1,1,1 }; 
 
