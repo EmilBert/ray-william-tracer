@@ -25,99 +25,48 @@
 #define RECORD_RENDER_TIME false
 #define MIN_LIGHT_INTENSITY 0
 
-Scene::Scene() : camera(glm::dvec3(0.2,0.2,0.8), glm::dvec3(0,0,-1), glm::dvec3(0,1,0), 100, 12.0/9.0), world()
+Scene::Scene() : camera(glm::dvec3(0,0,0.8), glm::dvec3(0,0,-1), glm::dvec3(0,1,0), 100, 12.0/9.0), world()
 {
 	framebuffer = new glm::dvec3[camera.image_width * camera.image_height];
 }
 
 void Scene::setup_scene()
 {
-	auto material_ground = make_shared<Lambertian>(glm::dvec3(1.0, 1.0, 1.0));
-	auto lambertian_red = make_shared<Lambertian>(glm::dvec3(1.0, 0, 0));
-	auto lambertian_green = make_shared<Lambertian>(glm::dvec3(0, 1.0, 0));
-	auto lambertian_blue = make_shared<Lambertian>(glm::dvec3(0, 0, 1));
-	auto lambertian = make_shared<Lambertian>(glm::dvec3(1, 1, 0));
-	auto lambertian_textured = make_shared<Lambertian>(glm::dvec3(1, 1, 1));
-	auto metal_mat = make_shared<Metal>(glm::dvec3(1, 1, 1), 0);
+//#define SPHERE_UNLIT_SCENE
+//#define SPHERE_DIFFUSE_SCENE1
+//#define SCENEFOR252
+#define CORNELL_BOX_WITH_LIGHTS_AND_SHADOWS
 
-	auto texture = make_shared<ProcederulTexture>(TextureType::CHECKERED, 10);
-	//auto texture = make_shared<ImageTexture>("texture.jpg");
-	lambertian_textured->texture = texture;
+#ifdef SPHERE_UNLIT_SCENE
+	auto unlit_blue = make_shared<Unlit>(glm::dvec3(0, 0, 1));
+	world.add(make_shared<Sphere>(glm::dvec3(0, 0, -1), 0.5, unlit_blue));
+#endif
 
-	//add_cornell_box(glm::dvec3(0, 0, -1), 1, lambertian_textured, lambertian_red, lambertian_green);
-	
-	//add_mark_room(glm::dvec3(0, 0, -1), 1, material_ground, lambertian_red, lambertian_green, lambertian_blue, lambertian_red, lambertian_green, lambertian_blue);
-	//add_mark_room(glm::dvec3(0, 0, -1), 1, material_ground, material_ground, material_ground, material_ground, material_ground, material_ground, material_ground);
-	//addCube(glm::dvec3(0.5, 0.5, -1.5), 0.2, dielectric, world, glm::dvec3(0, 20.0, 0));
-	//addCube(glm::dvec3(0, 0, -1), 0.1, diffuse_light, world, glm::dvec3(0, 0, 0));
-	//world.add(make_shared<Sphere>(glm::dvec3(-0.5, 0.0, -1.2), 0.35, lambertian));
-	//world.add(make_shared<Sphere>(glm::dvec3(0, 0.0, -1.25), 0.2, lambertian_blue));
+#ifdef SPHERE_DIFFUSE_SCENE1
+	auto lambertian_blue = make_shared<Lambertian>(glm::dvec3(0.1, 0.1, 1.0));
+	auto lambertian_green = make_shared<Lambertian>(glm::dvec3(0.1, 1.0, 0.1));
+	world.add(make_shared<Sphere>(glm::dvec3(0, 0, -1), 0.5, lambertian_blue));
+	world.add(make_shared<Sphere>(glm::dvec3(0, -100.5, -1), 100, lambertian_green));
+#endif
 
-	//world.add(make_shared<Plane>(glm::dvec3(0, -1, 0), glm::dvec3(0, 1, 0), lambertian, texture));
+#ifdef SCENEFOR252
+	auto lambertian_blue = make_shared<Lambertian>(glm::dvec3(0.1, 0.1, 1.0));
+	auto lambertian_green = make_shared<Lambertian>(glm::dvec3(0.1, 1.0, 0.1));
+	auto mirror = make_shared<Metal>(glm::dvec3(1, 1, 1), 0.0);
 
-	auto back = make_shared<ImageTexture>("images/Yokohama3/negz.jpg");
-	auto bottom = make_shared<ImageTexture>("images/Yokohama3/negy.jpg");
-	auto front = make_shared<ImageTexture>("images/Yokohama3/posz.jpg");
-	auto left = make_shared<ImageTexture>("images/Yokohama3/negx.jpg");
-	auto right = make_shared<ImageTexture>("images/Yokohama3/posx.jpg");
-	auto top = make_shared<ImageTexture>("images/Yokohama3/posy.jpg");
+	world.add(make_shared<Sphere>(glm::dvec3(-0.6, 0, -1), 0.5, lambertian_blue));
+	world.add(make_shared<Sphere>(glm::dvec3(0.6, 0, -1), 0.5, mirror));
+	world.add(make_shared<Sphere>(glm::dvec3(0, -100.5, -1), 100, lambertian_green));
+#endif
 
-	auto back_mat = make_shared<Unlit>(glm::dvec3(1, 1, 1));
-	auto bottom_mat = make_shared<Unlit>(glm::dvec3(1, 1, 1));
-	auto front_mat = make_shared<Unlit>(glm::dvec3(1, 1, 1));
-	auto left_mat = make_shared<Unlit>(glm::dvec3(1, 1, 1));
-	auto right_mat = make_shared<Unlit>(glm::dvec3(1, 1, 1));
-	auto top_mat = make_shared<Unlit>(glm::dvec3(1, 1, 1));
-
-	back_mat->texture = back;
-	bottom_mat->texture = bottom;
-	front_mat->texture = front;
-	left_mat->texture = left;
-	right_mat->texture = right;
-	top_mat->texture = top;
-
-	/* CREATE A SKYBOX */
-	constexpr auto SIZE = 500;
-	// Front
-	world.add(std::make_shared<Quad>(glm::dvec3(-SIZE, SIZE, -SIZE), glm::dvec3(SIZE, SIZE, -SIZE), glm::dvec3(-SIZE, -SIZE, -SIZE), glm::dvec3(SIZE, -SIZE, -SIZE), front_mat));
-	// Left
-	world.add(std::make_shared<Quad>(glm::dvec3(-SIZE, SIZE, SIZE), glm::dvec3(-SIZE,SIZE,-SIZE), glm::dvec3(-SIZE, -SIZE, SIZE), glm::dvec3(-SIZE, -SIZE, -SIZE), left_mat));
-	// Right
-	world.add(std::make_shared<Quad>(glm::dvec3(SIZE, SIZE, -SIZE), glm::dvec3(SIZE, SIZE, SIZE), glm::dvec3(SIZE, -SIZE, -SIZE), glm::dvec3(SIZE, -SIZE, SIZE), right_mat));
-	// Top
-	world.add(std::make_shared<Quad>(glm::dvec3(-SIZE, SIZE, SIZE), glm::dvec3(SIZE, SIZE, SIZE), glm::dvec3(-SIZE, SIZE, -SIZE), glm::dvec3(SIZE, SIZE, -SIZE), top_mat));
-	// Bottom
-	world.add(std::make_shared<Quad>(glm::dvec3(-SIZE, -SIZE, -SIZE), glm::dvec3(SIZE, -SIZE, -SIZE), glm::dvec3(-SIZE, -SIZE, SIZE), glm::dvec3(SIZE, -SIZE, SIZE), bottom_mat));
-	// Back
-	world.add(std::make_shared<Quad>(glm::dvec3(SIZE, SIZE, SIZE), glm::dvec3(-SIZE, SIZE, SIZE), glm::dvec3(SIZE, -SIZE, SIZE), glm::dvec3(-SIZE, -SIZE, SIZE), back_mat));
-
-	world.add(std::make_shared<Sphere>(glm::dvec3(0, 0, -1), 0.5, metal_mat));
-	world.add(std::make_shared<Sphere>(glm::dvec3(-0.8, 0, -0.8), 0.2, lambertian_green));
-
-	glm::dvec3 origin = { 0,0,-1.5 };
-	double size = 1;
-	//world.add(std::make_shared<Quad>(
-	//	origin + glm::dvec3(-size, size, -0.5), // top left 
-	//	origin + glm::dvec3(size, size, 0), // top right
-	//	origin + glm::dvec3(-size, -size, -0.2),  // bottom left 
-	//	origin + glm::dvec3(size, -size, 0), lambertian) // bottom right
-	//); 
-
-	double eps = 1e-06;
-	double y = 1 - eps;
-	double z = -1;
-	//double size = 0.25;
-	size = 0.25;
-	double x = 0;
-	//add_quad(glm::dvec3(x + size, y, z - size), glm::dvec3(x - size, y, z - size), glm::dvec3(x + size, y, z + size), glm::dvec3(x - size, y, z + size), unlit);
-
-	//add_cube(glm::dvec3(0.15, -0.5, -1.5), 0.2, lambertian_blue, world, glm::dvec3(0, 0, 0));
-	std::vector<glm::dvec3> v = { glm::dvec3(x + size, y, z + size), glm::dvec3(x - size, y, z + size), glm::dvec3(x + size, y, z - size), glm::dvec3(x - size, y, z - size) };
-	//world.add(make_shared<Light>(v, glm::dvec3(x, y, z), 3.0, glm::dvec3{ 1, 1, 1 }));
-
-	//world.add(make_shared<Triangle>(someData, glm::dvec3(0,0,0), 0, lambertian));
-	//world.add(make_shared<Quad>(glm::dvec3(0, 0, -2), glm::dvec3(0, 2, -2), glm::dvec3(2, 0, -2), glm::dvec3(2, 2, -2), lambertian));
-	//add_final_scene();
+#ifdef CORNELL_BOX_WITH_LIGHTS_AND_SHADOWS
+	auto right_wall = color_255_to_01({ 61, 122, 179 });
+	auto left_wall = color_255_to_01({ 200, 93, 211 });
+	auto right = make_shared<Lambertian>(right_wall);
+	auto left = make_shared<Lambertian>(left_wall);
+	auto m = make_shared<Lambertian>(glm::dvec3(1.0, 1.0, 1.0));
+	add_cornell_box(glm::dvec3(0, 0, -1), 1, m, left, right);
+#endif
 }
 
 void Scene::render_scene()
@@ -272,7 +221,10 @@ glm::dvec3 Scene::trace_ray(const Ray& ray, const Hittable& world, int depth) co
 		return attenuation * trace_ray(scattered, world, ++depth);
 	}
 
-	return bg; 
+	//return bg; 
+	glm::dvec3 unit_direction = glm::normalize(ray.direction());
+	auto t = 0.5 * (unit_direction.y + 1.0);
+	return (1.0 - t) * glm::dvec3(1.0, 1.0, 1.0) + t * glm::dvec3(0.5, 0.7, 1.0);
 }
 
 double Scene::light_ray_pass(const hit_record& rec) const
@@ -476,6 +428,45 @@ void Scene::add_cube(const glm::dvec3& origin, double radius, shared_ptr<Materia
 	add_quad(v4, v7, v5, v6, m);
 	add_quad(v7, v4, v3, v0, m);
 	add_quad(v2, v1, v6, v5, m);
+}
+
+void Scene::add_cube_map(const std::string& top, const std::string& bottom, const std::string& left, const std::string& right, const std::string& front, const std::string& back)
+{
+	auto back_t = make_shared<ImageTexture>(back);
+	auto bottom_t = make_shared<ImageTexture>(bottom);
+	auto front_t = make_shared<ImageTexture>(front);
+	auto left_t = make_shared<ImageTexture>(left);
+	auto right_t = make_shared<ImageTexture>(right);
+	auto top_t = make_shared<ImageTexture>(top);
+
+	auto back_mat = make_shared<Unlit>(glm::dvec3(1, 1, 1));
+	auto bottom_mat = make_shared<Unlit>(glm::dvec3(1, 1, 1));
+	auto front_mat = make_shared<Unlit>(glm::dvec3(1, 1, 1));
+	auto left_mat = make_shared<Unlit>(glm::dvec3(1, 1, 1));
+	auto right_mat = make_shared<Unlit>(glm::dvec3(1, 1, 1));
+	auto top_mat = make_shared<Unlit>(glm::dvec3(1, 1, 1));
+
+	back_mat->texture = back_t;
+	bottom_mat->texture = bottom_t;
+	front_mat->texture = front_t;
+	left_mat->texture = left_t;
+	right_mat->texture = right_t;
+	top_mat->texture = top_t;
+
+	/* CREATE A SKYBOX */
+	constexpr auto SIZE = 500;
+	// Front
+	world.add(std::make_shared<Quad>(glm::dvec3(-SIZE, SIZE, -SIZE), glm::dvec3(SIZE, SIZE, -SIZE), glm::dvec3(-SIZE, -SIZE, -SIZE), glm::dvec3(SIZE, -SIZE, -SIZE), front_mat));
+	// Left
+	world.add(std::make_shared<Quad>(glm::dvec3(-SIZE, SIZE, SIZE), glm::dvec3(-SIZE, SIZE, -SIZE), glm::dvec3(-SIZE, -SIZE, SIZE), glm::dvec3(-SIZE, -SIZE, -SIZE), left_mat));
+	// Right
+	world.add(std::make_shared<Quad>(glm::dvec3(SIZE, SIZE, -SIZE), glm::dvec3(SIZE, SIZE, SIZE), glm::dvec3(SIZE, -SIZE, -SIZE), glm::dvec3(SIZE, -SIZE, SIZE), right_mat));
+	// Top
+	world.add(std::make_shared<Quad>(glm::dvec3(-SIZE, SIZE, SIZE), glm::dvec3(SIZE, SIZE, SIZE), glm::dvec3(-SIZE, SIZE, -SIZE), glm::dvec3(SIZE, SIZE, -SIZE), top_mat));
+	// Bottom
+	world.add(std::make_shared<Quad>(glm::dvec3(-SIZE, -SIZE, -SIZE), glm::dvec3(SIZE, -SIZE, -SIZE), glm::dvec3(-SIZE, -SIZE, SIZE), glm::dvec3(SIZE, -SIZE, SIZE), bottom_mat));
+	// Back
+	world.add(std::make_shared<Quad>(glm::dvec3(SIZE, SIZE, SIZE), glm::dvec3(-SIZE, SIZE, SIZE), glm::dvec3(SIZE, -SIZE, SIZE), glm::dvec3(-SIZE, -SIZE, SIZE), back_mat));
 }
 
 void Scene::add_final_scene(){

@@ -7,9 +7,9 @@
 #include<glm/common.hpp>
 #include<glm/trigonometric.hpp>
 
-ImageTexture::ImageTexture(const char* file_name)
+ImageTexture::ImageTexture(const std::string& file)
 {
-	image = stbi_load(file_name, &width, &height, &bytes_per_pixel, 0);
+	image = stbi_load(file.c_str(), &width, &height, &bytes_per_pixel, 0);
 	if (image == nullptr) {
 		std::cout << "Failed to load image" << std::endl;
 	}
