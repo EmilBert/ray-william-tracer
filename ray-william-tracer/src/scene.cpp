@@ -43,41 +43,15 @@ void Scene::setup_scene()
 #endif
 
 #ifdef SPHERE_DIFFUSE_SCENE1
-	auto lambertian_blue = make_shared<Lambertian>(glm::dvec3(0.1, 0.1, 1.0));
-	auto lambertian_green = make_shared<Lambertian>(glm::dvec3(0.1, 1.0, 0.1));
-	world.add(make_shared<Sphere>(glm::dvec3(0, 0, -1), 0.5, lambertian_blue));
-	world.add(make_shared<Sphere>(glm::dvec3(0, -100.5, -1), 100, lambertian_green));
+
 #endif
 
 #ifdef SCENEFOR252
-	auto lambertian_blue = make_shared<Lambertian>(glm::dvec3(0.1, 0.1, 1.0));
-	auto lambertian_green = make_shared<Lambertian>(glm::dvec3(0.1, 1.0, 0.1));
-	auto mirror = make_shared<Metal>(glm::dvec3(1, 1, 1), 0.0);
 
-	world.add(make_shared<Sphere>(glm::dvec3(-0.6, 0, -1), 0.5, lambertian_blue));
-	world.add(make_shared<Sphere>(glm::dvec3(0.6, 0, -1), 0.5, mirror));
-	world.add(make_shared<Sphere>(glm::dvec3(0, -100.5, -1), 100, lambertian_green));
 #endif
 
 #ifdef CORNELL_BOX_WITH_LIGHTS_AND_SHADOWS
-	auto right_wall = color_255_to_01({ 61, 122, 179 });
-	auto left_wall = color_255_to_01({ 200, 93, 211 });
-	auto right = make_shared<Lambertian>(right_wall);
-	auto left = make_shared<Lambertian>(left_wall);
-	auto m = make_shared<Lambertian>(glm::dvec3(1.0, 1.0, 1.0));
-	add_cornell_box(glm::dvec3(0, 0, -1), 1, m, left, right);
 
-	double eps = 1e-06;
-	double y = 1 - eps;
-	double z = -1;
-	double size = 0.35;
-	double x = 0;
-	std::vector<glm::dvec3> v = { glm::dvec3(x + size, y, z + size), glm::dvec3(x - size, y, z + size), glm::dvec3(x + size, y, z - size), glm::dvec3(x - size, y, z - size) };
-	world.add(make_shared<Light>(v, glm::dvec3(x, y, z), 5.0, glm::dvec3{ 1, 1, 1 }));
-
-	auto lambertian = make_shared<Lambertian>(color_255_to_01(75, 0, 130));
-	auto dielectric = make_shared<Dielectric>(1.3);
-	world.add(make_shared<Sphere>(glm::dvec3(0, 0, -1.2), 0.25, dielectric));
 
 #endif
 
@@ -237,7 +211,7 @@ void Scene::write_render_to_file(const std::string& image_name)
 
 void Scene::scene1()
 {
-	Scene::camera = Camera(glm::dvec3(0.2, 0.5, -0.3), glm::dvec3(0, 0.3, -1), glm::dvec3(0, 1, 0), 90, 16.0 / 9.0);
+	camera = Camera(glm::dvec3(0.2, 0.5, -0.3), glm::dvec3(0, 0.3, -1), glm::dvec3(0, 1, 0), 90, 16.0 / 9.0);
 
 	world.clear();
 	add_final_scene();
@@ -255,7 +229,7 @@ void Scene::scene1()
 
 void Scene::scene2()
 {
-	Scene::camera = Camera(glm::dvec3(0.2, 0.5, -0.3), glm::dvec3(0, 0.3, -1), glm::dvec3(0, 1, 0), 90, 16.0 / 9.0);
+	camera = Camera(glm::dvec3(0.2, 0.5, -0.3), glm::dvec3(0, 0.3, -1), glm::dvec3(0, 1, 0), 90, 16.0 / 9.0);
 
 	world.clear();
 	add_final_scene();
@@ -289,6 +263,97 @@ void Scene::scene3()
 	add_cube(glm::dvec3(-0.3, -0.4, -1.3), 0.2, lambertian_object, world, glm::dvec3(0, 30.0, 0));
 }
 
+void Scene::sphere_unlit_scene()
+{
+	camera = Camera(glm::dvec3(0, 0, 0), glm::dvec3(0, 0, -1), glm::dvec3(0, 1, 0), 90, 12.0 / 9.0);
+	world.clear();
+
+	auto unlit_blue = make_shared<Unlit>(glm::dvec3(0, 0, 1));
+	world.add(make_shared<Sphere>(glm::dvec3(0, 0, -1), 0.5, unlit_blue));
+}
+
+void Scene::sphere_diffuse_scene()
+{
+	camera = Camera(glm::dvec3(0, 0, 0.5), glm::dvec3(0, 0, -1), glm::dvec3(0, 1, 0), 90, 12.0 / 9.0);
+	world.clear();
+
+	auto lambertian_blue = make_shared<Lambertian>(glm::dvec3(0.1, 0.1, 1.0));
+	auto lambertian_green = make_shared<Lambertian>(glm::dvec3(0.1, 1.0, 0.1));
+	world.add(make_shared<Sphere>(glm::dvec3(0, 0, -1), 0.5, lambertian_blue));
+	world.add(make_shared<Sphere>(glm::dvec3(0, -100.5, -1), 100, lambertian_green));
+}
+
+void Scene::scene_with_perfect_reflector()
+{
+	camera = Camera(glm::dvec3(0, 0, 0.5), glm::dvec3(0, 0, -1), glm::dvec3(0, 1, 0), 90, 12.0 / 9.0);
+	world.clear();
+
+	auto lambertian_blue = make_shared<Lambertian>(glm::dvec3(0.1, 0.1, 1.0));
+	auto lambertian_green = make_shared<Lambertian>(glm::dvec3(0.1, 1.0, 0.1));
+	auto mirror = make_shared<Metal>(glm::dvec3(1, 1, 1), 0.0);
+
+	world.add(make_shared<Sphere>(glm::dvec3(-0.6, 0, -1), 0.5, lambertian_blue));
+	world.add(make_shared<Sphere>(glm::dvec3(0.6, 0, -1), 0.5, mirror));
+	world.add(make_shared<Sphere>(glm::dvec3(0, -100.5, -1), 100, lambertian_green));
+}
+
+void Scene::cornell_box_with_lamp_and_shadow()
+{
+	camera = Camera(glm::dvec3(0, 0.3, -0.1), glm::dvec3(0, 0, -1), glm::dvec3(0, 1, 0), 90, 12.0 / 9.0);
+	world.clear();
+
+	auto right_wall = color_255_to_01({ 0, 122, 179 });
+	auto left_wall = color_255_to_01({ 200, 0, 211 });
+	auto right = make_shared<Lambertian>(right_wall);
+	auto left = make_shared<Lambertian>(left_wall);
+	auto m = make_shared<Lambertian>(glm::dvec3(1.0, 1.0, 1.0));
+	add_cornell_box(glm::dvec3(0, 0, -1), 1, m, left, right);
+
+	double eps = 1e-06;
+	double y = 1 - eps;
+	double z = -1;
+	double size = 0.35;
+	double x = 0;
+	std::vector<glm::dvec3> v = { glm::dvec3(x + size, y, z + size), glm::dvec3(x - size, y, z + size), glm::dvec3(x + size, y, z - size), glm::dvec3(x - size, y, z - size) };
+	world.add(make_shared<Light>(v, glm::dvec3(x, y, z), 5.0, glm::dvec3{ 1, 1, 1 }));
+
+	auto lambertian = make_shared<Lambertian>(color_255_to_01(75, 0, 130));
+	world.add(make_shared<Sphere>(glm::dvec3(0, 0, -1.2), 0.25, lambertian));
+}
+
+void Scene::cornell_box_with_lamp_and_shadow_texture()
+{
+	camera = Camera(glm::dvec3(0, 0, -0.1), glm::dvec3(0, 0, -1), glm::dvec3(0, 1, 0), 90, 12.0 / 9.0);
+	world.clear();
+
+	auto checkered_texture = make_shared<ProcederulTexture>(TextureType::CHECKERED, 0.3);
+
+	auto right_wall = color_255_to_01({ 0, 122, 179 });
+	auto left_wall = color_255_to_01({ 200, 0, 211 });
+	auto right = make_shared<Lambertian>(right_wall);
+	auto left = make_shared<Lambertian>(left_wall);
+	auto m = make_shared<Lambertian>(glm::dvec3(1.0, 1.0, 1.0));
+	m->texture = checkered_texture;
+	add_cornell_box(glm::dvec3(0, 0, -1), 1, m, left, right);
+
+	double eps = 1e-06;
+	double y = 1 - eps;
+	double z = -1;
+	double size = 0.35;
+	double x = 0;
+	std::vector<glm::dvec3> v = { glm::dvec3(x + size, y, z + size), glm::dvec3(x - size, y, z + size), glm::dvec3(x + size, y, z - size), glm::dvec3(x - size, y, z - size) };
+	world.add(make_shared<Light>(v, glm::dvec3(x, y, z), 5.0, glm::dvec3{ 1, 1, 1 }));
+
+	auto texture = make_shared<ImageTexture>("images/brick_base.jpg");
+	auto lambertian_brick = make_shared<Lambertian>(color_255_to_01(75, 0, 130));
+	lambertian_brick->texture = texture;
+
+	world.add(make_shared<Sphere>(glm::dvec3(0, 0, -1.2), 0.25, lambertian_brick));
+}
+
+void Scene::dave_scene()
+{
+}
 
 void Scene::view_render_in_SDL() const
 {

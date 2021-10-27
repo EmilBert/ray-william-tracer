@@ -20,6 +20,13 @@ public:
 	void scene2();
 	void scene3();
 
+	void sphere_unlit_scene();
+	void sphere_diffuse_scene();
+	void scene_with_perfect_reflector();
+	void cornell_box_with_lamp_and_shadow();
+	void cornell_box_with_lamp_and_shadow_texture();
+	void dave_scene();
+
 	/* Render with SDL */
 	void view_render_in_SDL() const;
 
