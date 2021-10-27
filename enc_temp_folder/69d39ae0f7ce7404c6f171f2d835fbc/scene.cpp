@@ -251,11 +251,14 @@ void Scene::scene1()
 	world.add(make_shared<Sphere>(glm::dvec3(-0.3, 0.2, -0.7), 0.35, mirror));
 	world.add(make_shared<Sphere>(glm::dvec3(0.3, -0.2, -0.7), 0.35, glass));
 	add_cube(glm::dvec3(-0.3, -0.4, -1.3), 0.2, lambertian_object, world, glm::dvec3(0, 30.0, 0));
+	
+
+	
 }
 
 void Scene::scene2()
 {
-	Scene::camera = Camera(glm::dvec3(0.2, 0.5, -0.3), glm::dvec3(0, 0.3, -1), glm::dvec3(0, 1, 0), 90, 16.0 / 9.0);
+	Scene::camera = Camera(glm::dvec3(0.2, -0.3, -0.3), glm::dvec3(0, 0.3, -1), glm::dvec3(0, 1, 0), 90, 16.0 / 9.0);
 
 	world.clear();
 	add_final_scene();
@@ -265,15 +268,17 @@ void Scene::scene2()
 	auto mirror = make_shared<Metal>(glm::dvec3(1.0, 1.0, 1.0), 0);
 	auto fuzzy_metal = make_shared<Metal>(glm::dvec3(1.0, 1.0, 1.0), 0.2);
 
-	add_cube(glm::dvec3(0.3, 0.4, -1.3), 0.2, fuzzy_metal, world, glm::dvec3(0, 20.0, 0));
-	world.add(make_shared<Sphere>(glm::dvec3(-0.3, 0.2, -0.7), 0.35, mirror));
-	world.add(make_shared<Sphere>(glm::dvec3(0.3, -0.2, -0.7), 0.35, glass));
-	add_cube(glm::dvec3(-0.3, -0.4, -1.3), 0.2, lambertian_object, world, glm::dvec3(0, 30.0, 0));
+	add_cube(glm::dvec3(0.5, 0.5, -1.5), 0.2, fuzzy_metal, world, glm::dvec3(0, 20.0, 0));
+	add_cube(glm::dvec3(-0.4, -0.3, -0.8), 0.2, lambertian_object, world, glm::dvec3(0, 20.0, 0));
+	world.add(make_shared<Sphere>(glm::dvec3(-0.5, 0.0, -1.2), 0.35, mirror));
+	world.add(make_shared<Sphere>(glm::dvec3(-0.5, 0.0, -1.2), 0.35, glass));
+
+
 }
 
 void Scene::scene3()
 {
-	Scene::camera = Camera(glm::dvec3(0.2, 0.5, -0.3), glm::dvec3(0, 0.3, -1), glm::dvec3(0, 1, 0), 90, 16.0 / 9.0);
+	Scene::camera = Camera(glm::dvec3(0.2, 0.3, -0.3), glm::dvec3(0, -0.3, -1), glm::dvec3(0, 1, 0), 90, 16.0 / 9.0);
 
 	world.clear();
 	add_final_scene();
@@ -283,10 +288,12 @@ void Scene::scene3()
 	auto mirror = make_shared<Metal>(glm::dvec3(1.0, 1.0, 1.0), 0);
 	auto fuzzy_metal = make_shared<Metal>(glm::dvec3(1.0, 1.0, 1.0), 0.2);
 
-	add_cube(glm::dvec3(0.3, 0.4, -1.3), 0.2, fuzzy_metal, world, glm::dvec3(0, 20.0, 0));
-	world.add(make_shared<Sphere>(glm::dvec3(-0.3, 0.2, -0.7), 0.35, mirror));
-	world.add(make_shared<Sphere>(glm::dvec3(0.3, -0.2, -0.7), 0.35, glass));
-	add_cube(glm::dvec3(-0.3, -0.4, -1.3), 0.2, lambertian_object, world, glm::dvec3(0, 30.0, 0));
+	add_cube(glm::dvec3(0.5, 0.5, -1.5), 0.2, fuzzy_metal, world, glm::dvec3(0, 20.0, 0));
+	add_cube(glm::dvec3(-0.4, -0.3, -0.8), 0.2, lambertian_object, world, glm::dvec3(0, 20.0, 0));
+	world.add(make_shared<Sphere>(glm::dvec3(-0.5, 0.0, -1.2), 0.35, mirror));
+	world.add(make_shared<Sphere>(glm::dvec3(-0.5, 0.0, -1.2), 0.35, glass));
+
+
 }
 
 

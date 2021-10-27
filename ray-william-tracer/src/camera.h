@@ -25,9 +25,9 @@ public:
 		auto v = glm::cross(w, u);
 
 		// Some screen constants
-		image_width = 500; 
+		image_width = 300; 
 		image_height = static_cast<int>(image_width / aspect_ratio);
-		samples_per_pixel = 70;
+		samples_per_pixel = 50;
 
 		// Positionals
 		origin = lookfrom;

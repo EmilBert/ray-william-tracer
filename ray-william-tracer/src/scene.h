@@ -17,6 +17,8 @@ public:
 	void write_render_to_file(const std::string& image_name);
 
 	void scene1();
+	void scene2();
+	void scene3();
 
 	/* Render with SDL */
 	void view_render_in_SDL() const;
