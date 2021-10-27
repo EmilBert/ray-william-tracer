@@ -25,9 +25,8 @@
 #define RECORD_RENDER_TIME false
 #define MIN_LIGHT_INTENSITY 0
 
-Scene::Scene() : camera(glm::dvec3(0,0,-0.5), glm::dvec3(0,0,-1), glm::dvec3(0,1,0), 90, 12.0/9.0), world()
+Scene::Scene() : camera(glm::dvec3(0,0,-0.1), glm::dvec3(0,0,-1), glm::dvec3(0,1,0), 90, 12.0/9.0), world()
 {
-	framebuffer = new glm::dvec3[camera.image_width * camera.image_height];
 }
 
 void Scene::setup_scene()
@@ -67,6 +66,19 @@ void Scene::setup_scene()
 	auto left = make_shared<Lambertian>(left_wall);
 	auto m = make_shared<Lambertian>(glm::dvec3(1.0, 1.0, 1.0));
 	add_cornell_box(glm::dvec3(0, 0, -1), 1, m, left, right);
+
+	double eps = 1e-06;
+	double y = 1 - eps;
+	double z = -1;
+	double size = 0.35;
+	double x = 0;
+	std::vector<glm::dvec3> v = { glm::dvec3(x + size, y, z + size), glm::dvec3(x - size, y, z + size), glm::dvec3(x + size, y, z - size), glm::dvec3(x - size, y, z - size) };
+	world.add(make_shared<Light>(v, glm::dvec3(x, y, z), 5.0, glm::dvec3{ 1, 1, 1 }));
+
+	auto lambertian = make_shared<Lambertian>(color_255_to_01(75, 0, 130));
+	auto dielectric = make_shared<Dielectric>(1.3);
+	world.add(make_shared<Sphere>(glm::dvec3(0, 0, -1.2), 0.25, dielectric));
+
 #endif
 
 #ifdef DAVE_SCENE
@@ -83,18 +95,20 @@ void Scene::setup_scene()
 	double size = 1.5;
 	double x = 0;
 	std::vector<glm::dvec3> v = { glm::dvec3(x + size, y, z + size), glm::dvec3(x - size, y, z + size), glm::dvec3(x + size, y, z - size), glm::dvec3(x - size, y, z - size) };
-	world.add(make_shared<Light>(v, glm::dvec3(x, y, z), 3.0, glm::dvec3{ 1, 1, 1 }));
+	//world.add(make_shared<Light>(v, glm::dvec3(x, y, z), 3.0, glm::dvec3{ 1, 1, 1 }));
 
 	// Add skybox
 	add_cube_map("images/top.jpg", "images/bottom.jpg", "images/left.jpg", "images/right.jpg", "images/front.jpg", "images/back.jpg");
 
 	// Add sphere
+	auto dielectric = make_shared<Dielectric>(2);
+
 	auto texture = make_shared<ImageTexture>("images/brick_base.jpg");
 	auto normal = make_shared<ImageTexture>("images/brick_normal.jpg");
 	auto brick_texture = make_shared<Lambertian>(glm::dvec3(1, 1, 1));
 	brick_texture->texture = texture;
 	brick_texture->normal_map = normal;
-	world.add(make_shared<Sphere>(glm::dvec3(0, 0, -1), 0.3, brick_texture));
+	world.add(make_shared<Sphere>(glm::dvec3(0, 0, -1), 0.3, dielectric));
 
 #endif
 
@@ -102,6 +116,9 @@ void Scene::setup_scene()
 
 void Scene::render_scene()
 {
+	if (framebuffer != nullptr) delete[] framebuffer;
+	framebuffer = new glm::dvec3[camera.image_width * camera.image_height];
+
 	/*
 	Go through each light, trace rays, store in data-structure
 	2 maps:
@@ -216,6 +233,14 @@ void Scene::write_render_to_file(const std::string& image_name)
 	output_stream.close();
 	delete[] framebuffer;
 	framebuffer = nullptr;
+}
+
+void Scene::scene1()
+{
+	world.clear();
+
+	//auto unlit_blue = make_shared<Unlit>(glm::dvec3(0, 0, 1));
+	//world.add(make_shared<Sphere>(glm::dvec3(0, 0, -1), 0.5, unlit_blue));
 }
 
 void Scene::view_render_in_SDL() const

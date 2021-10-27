@@ -79,21 +79,27 @@ bool Dielectric::scatter(const Ray& ray_in, const hit_record& rec, glm::dvec3& a
     attentuation = glm::dvec3(1.0, 1.0, 1.0);
     double refraction_ratio = rec.front_face ? (1.0 / refraction_index) : refraction_index;
     glm::dvec3 unit_direction = glm::normalize(ray_in.direction());
-    glm::dvec3 refracted = glm::refract(unit_direction, rec.normal, refraction_ratio);
 
-    double cos_theta = fmin(dot(-unit_direction, rec.normal), 1.0);
-    double sin_theta = sqrt(1.0 - cos_theta * cos_theta); // Trig-ettan 
+    double cos_theta = fmin(glm::dot(-unit_direction, rec.normal), 1.0);
+    double sin_theta = glm::sqrt(1.0 - cos_theta * cos_theta); // Trig-ettan 
     bool cannot_refract = refraction_ratio * sin_theta > 1.0;
     glm::dvec3 direction;
 
     // This is some weird hack to simulate how glass looks at an angle
-    if (cannot_refract || reflectance(cos_theta, refraction_ratio) > random_double())
+    if (cannot_refract || reflectance(cos_theta, refraction_ratio) > random_double()) {
         direction = glm::reflect(unit_direction, rec.normal);
-    else
+    }
+    else {
         direction = glm::refract(unit_direction, rec.normal, refraction_ratio);
+    }
 
-    scattered = Ray(rec.p, refracted);
+    scattered = Ray(rec.p, direction);
     return true;
+}
+
+bool Dielectric::terminate_ray(int depth, int min_depth, int max_depth, glm::dvec3& attenuation) const
+{
+    return depth > max_depth;
 }
 
 bool Unlit::scatter(const Ray& r_in, const hit_record& rec, glm::dvec3& attenuation, Ray& scattered, Scene* scene) const

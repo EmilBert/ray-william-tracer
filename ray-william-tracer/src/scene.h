@@ -16,6 +16,8 @@ public:
 	void pixel_pass();
 	void write_render_to_file(const std::string& image_name);
 
+	void scene1();
+
 	/* Render with SDL */
 	void view_render_in_SDL() const;
 

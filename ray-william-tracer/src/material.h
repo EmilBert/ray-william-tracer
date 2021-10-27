@@ -78,6 +78,8 @@ public:
         const Ray& ray_in, const hit_record& rec, glm::dvec3& attentuation, Ray& scattered, Scene* scene
     ) const override;
 
+    virtual bool terminate_ray(int depth, int min_depth, int max_depth, glm::dvec3& attenuation) const;
+
 public:
     double refraction_index;
 
