@@ -326,15 +326,25 @@ void Scene::cornell_box_with_lamp_and_shadow_texture()
 	camera = Camera(glm::dvec3(0, 0, -0.1), glm::dvec3(0, 0, -1), glm::dvec3(0, 1, 0), 90, 12.0 / 9.0);
 	world.clear();
 
-	auto checkered_texture = make_shared<ProcederulTexture>(TextureType::CHECKERED, 0.3);
+	auto checkered_texture = make_shared<ProcederulTexture>(TextureType::CHECKERED, 0.01);
 
 	auto right_wall = color_255_to_01({ 0, 122, 179 });
 	auto left_wall = color_255_to_01({ 200, 0, 211 });
 	auto right = make_shared<Lambertian>(right_wall);
 	auto left = make_shared<Lambertian>(left_wall);
 	auto m = make_shared<Lambertian>(glm::dvec3(1.0, 1.0, 1.0));
-	m->texture = checkered_texture;
+	//m->texture = checkered_texture;
 	add_cornell_box(glm::dvec3(0, 0, -1), 1, m, left, right);
+
+	glm::dvec3 bl = {-1, -1, -1.99 };
+	glm::dvec3 br = { 1, -1, -1.99 };
+	glm::dvec3 tl = {-1,  1, -1.99 };
+	glm::dvec3 tr = { 1,  1, -1.99};
+
+	auto image = make_shared<ImageTexture>("images/wall.jpg");
+	auto image_material = make_shared<Lambertian>(glm::dvec3(1, 1, 1));
+	image_material->texture = image;
+	world.add(make_shared<Quad>(tl, tr, bl, br, image_material));
 
 	double eps = 1e-06;
 	double y = 1 - eps;
@@ -348,7 +358,7 @@ void Scene::cornell_box_with_lamp_and_shadow_texture()
 	auto lambertian_brick = make_shared<Lambertian>(color_255_to_01(75, 0, 130));
 	lambertian_brick->texture = texture;
 
-	world.add(make_shared<Sphere>(glm::dvec3(0, 0, -1.2), 0.25, lambertian_brick));
+	//world.add(make_shared<Sphere>(glm::dvec3(0, 0, -1.2), 0.25, lambertian_brick));
 }
 
 void Scene::dave_scene()

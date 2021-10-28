@@ -33,7 +33,8 @@ int main() {
 	scene.cornell_box_with_lamp_and_shadow_texture();
 	scene.render_scene();
 	scene.write_render_to_file("cornell_box_textured.ppm");
-
+	//scene.view_render_in_SDL();
+						
 	// Now write our render to file "image.ppm"
 	//scene.write_render_to_file("image.ppm");
 	//scene.view_render_in_SDL();

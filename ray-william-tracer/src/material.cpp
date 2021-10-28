@@ -80,6 +80,7 @@ bool Dielectric::scatter(const Ray& ray_in, const hit_record& rec, glm::dvec3& a
     double refraction_ratio = rec.front_face ? (1.0 / refraction_index) : refraction_index;
     glm::dvec3 unit_direction = glm::normalize(ray_in.direction());
 
+    // dot(x,y) = abs(x)*abs(y)*cos(theta)
     double cos_theta = fmin(glm::dot(-unit_direction, rec.normal), 1.0);
     double sin_theta = glm::sqrt(1.0 - cos_theta * cos_theta); // Trig-ettan 
     bool cannot_refract = refraction_ratio * sin_theta > 1.0;
