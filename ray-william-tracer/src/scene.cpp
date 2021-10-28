@@ -237,7 +237,7 @@ void Scene::write_render_to_file(const std::string& image_name)
 
 void Scene::scene1()
 {
-	Scene::camera = Camera(glm::dvec3(0.2, 0.5, -0.3), glm::dvec3(0, 0.3, -1), glm::dvec3(0, 1, 0), 90, 16.0 / 9.0);
+	Scene::camera = Camera(glm::dvec3(0.2, 0.6, -0.3), glm::dvec3(0, -0.2, -1), glm::dvec3(0, 1, 0), 90, 16.0 / 9.0);
 
 	world.clear();
 	add_final_scene();
@@ -247,9 +247,9 @@ void Scene::scene1()
 	auto mirror = make_shared<Metal>(glm::dvec3(1.0, 1.0, 1.0), 0);
 	auto fuzzy_metal = make_shared<Metal>(glm::dvec3(1.0, 1.0, 1.0), 0.2);
 
-	add_cube(glm::dvec3(0.3, 0.4, -1.3), 0.2, fuzzy_metal, world, glm::dvec3(0, 20.0, 0));
-	world.add(make_shared<Sphere>(glm::dvec3(-0.3, 0.2, -0.7), 0.35, mirror));
-	world.add(make_shared<Sphere>(glm::dvec3(0.3, -0.2, -0.7), 0.35, glass));
+	add_cube(glm::dvec3(0.3, 0.3, -1.3), 0.25, fuzzy_metal, world, glm::dvec3(0, 20.0, 0));
+	world.add(make_shared<Sphere>(glm::dvec3(-0.3, 0.2, -0.7), 0.20, mirror));
+	world.add(make_shared<Sphere>(glm::dvec3(0.3, -0.2, -0.7), 0.25, glass));
 	add_cube(glm::dvec3(-0.3, -0.4, -1.3), 0.2, lambertian_object, world, glm::dvec3(0, 30.0, 0));
 }
 
@@ -265,9 +265,9 @@ void Scene::scene2()
 	auto mirror = make_shared<Metal>(glm::dvec3(1.0, 1.0, 1.0), 0);
 	auto fuzzy_metal = make_shared<Metal>(glm::dvec3(1.0, 1.0, 1.0), 0.2);
 
-	add_cube(glm::dvec3(0.3, 0.4, -1.3), 0.2, fuzzy_metal, world, glm::dvec3(0, 20.0, 0));
+	add_cube(glm::dvec3(0.3, -0.2, -0.7), 0.2, fuzzy_metal, world, glm::dvec3(20.0, 40.0, 0));
 	world.add(make_shared<Sphere>(glm::dvec3(-0.3, 0.2, -0.7), 0.35, mirror));
-	world.add(make_shared<Sphere>(glm::dvec3(0.3, -0.2, -0.7), 0.35, glass));
+	world.add(make_shared<Sphere>(glm::dvec3(0.3, 0.4, -1.3), 0.35, glass));
 	add_cube(glm::dvec3(-0.3, -0.4, -1.3), 0.2, lambertian_object, world, glm::dvec3(0, 30.0, 0));
 }
 
@@ -604,7 +604,7 @@ void Scene::add_final_scene(){
 
 	//add_cube(glm::dvec3(0.15, -0.5, -1.5), 0.2, lambertian_blue, world, glm::dvec3(0, 0, 0));
 	std::vector<glm::dvec3> v = { glm::dvec3(x + size, y, z + size), glm::dvec3(x - size, y, z + size), glm::dvec3(x + size, y, z - size), glm::dvec3(x - size, y, z - size) };
-	world.add(make_shared<Light>(v, glm::dvec3(x, y, z), 3.0, glm::dvec3{ 1, 1, 1 }));
+	world.add(make_shared<Light>(v, glm::dvec3(x, y, z), 5.0, glm::dvec3{ 1, 1, 1 }));
 
 	// Create_mark_room
 	add_mark_room(glm::dvec3(0, 0, -1), 1, walls_and_ceiling, l_orange, l_pink, l_turk, l_blue, l_green, l_sage);
