@@ -221,10 +221,10 @@ void Scene::scene1()
 	auto mirror = make_shared<Metal>(glm::dvec3(1.0, 1.0, 1.0), 0);
 	auto fuzzy_metal = make_shared<Metal>(glm::dvec3(1.0, 1.0, 1.0), 0.2);
 
-	add_cube(glm::dvec3(0.3, 0.3, -1.3), 0.25, fuzzy_metal, world, glm::dvec3(0, 20.0, 0));
+	add_cube(glm::dvec3(0.3, 0.3, -1.3), 0.25, lambertian_object, world, glm::dvec3(0, 20.0, 0));
 	world.add(make_shared<Sphere>(glm::dvec3(-0.3, 0.2, -0.7), 0.20, mirror));
 	world.add(make_shared<Sphere>(glm::dvec3(0.3, -0.2, -0.7), 0.25, glass));
-	add_cube(glm::dvec3(-0.3, -0.4, -1.3), 0.2, lambertian_object, world, glm::dvec3(0, 30.0, 0));
+	//add_cube(glm::dvec3(-0.3, -0.4, -1.3), 0.2, lambertian_object, world, glm::dvec3(0, 30.0, 0));
 }
 
 void Scene::scene2()
@@ -677,24 +677,24 @@ void Scene::add_final_scene(){
 	double size = 0.25;
 	double x = 0;
 
-	glm::dvec3 v0{ 1, 0, -eps -1 + 1 / 2 };
-	glm::dvec3 v5{ 0, 0, -eps };
+	/*glm::dvec3 v0{ 1, 0, -eps -1 + 1 / 2 };
+	glm::dvec3 v5{ 0, 0, -eps };*/
 
 	/*glm::dvec3 bl{ 0,-1, -eps };
 	glm::dvec3 br{ 1,-1, -eps-(1/2)};
 	glm::dvec3 tl{ 0, 1, -eps };
 	glm::dvec3 tr{ 1, 1, -eps-(1/2) };*/
 
-	glm::dvec3 bl{ -0.2, -0.2, -1 };
+	/*glm::dvec3 bl{ -0.2, -0.2, -1 };
 	glm::dvec3 br{  0.2, -0.2, -1 };
 	glm::dvec3 tl{ -0.2,  0.2, -1 };
-	glm::dvec3 tr{  0.2,  0.2, -1 };
+	glm::dvec3 tr{  0.2,  0.2, -1 };*/
 
 
-	auto image = make_shared<ImageTexture>("images/wall.jpg");
+	/*auto image = make_shared<ImageTexture>("images/wall.jpg");
 	auto image_material = make_shared<Lambertian>(glm::dvec3(1, 1, 1));
 	image_material->texture = image;
-	world.add(make_shared<Quad>(tl, tr, bl, br, image_material));
+	world.add(make_shared<Quad>(tl, tr, bl, br, image_material));*/
 	/*
 	*v6	  __v2__	 *v7
 	  _--=	    =--_
@@ -711,7 +711,7 @@ void Scene::add_final_scene(){
 	world.add(make_shared<Light>(v, glm::dvec3(x, y, z), 5.0, glm::dvec3{ 1, 1, 1 }));
 	
 	// Create_mark_room
-	add_mark_room(glm::dvec3(0, 0, -1), 1, walls_and_ceiling, l_orange, l_pink, mirror, l_turk, l_green, l_sage);
+	add_mark_room(glm::dvec3(0, 0, -1), 1, walls_and_ceiling, l_orange, l_pink, l_blue, l_turk, l_green, l_sage);
 }
 
 

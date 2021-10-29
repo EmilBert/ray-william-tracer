@@ -65,8 +65,8 @@ public:
 public:
 	HittableList world;
 	Camera camera;
-	int min_depth = 10;
-	int max_depth = 80;
+	int min_depth = 6;
+	int max_depth = 12;
 	glm::dvec3* framebuffer;
 	glm::dvec3 bg = { 1,1,1 }; 
 
