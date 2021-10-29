@@ -211,7 +211,7 @@ void Scene::write_render_to_file(const std::string& image_name)
 
 void Scene::scene1()
 {
-	Scene::camera = Camera(glm::dvec3(0.2, 0.6, -0.3), glm::dvec3(0, -0.2, -1), glm::dvec3(0, 1, 0), 90, 16.0 / 9.0);
+	Scene::camera = Camera(glm::dvec3(0.2, 0.6, -0.1), glm::dvec3(0, -0.2, -1), glm::dvec3(0, 1, 0), 90, 16.0 / 9.0);
 
 	world.clear();
 	add_final_scene();
@@ -677,12 +677,41 @@ void Scene::add_final_scene(){
 	double size = 0.25;
 	double x = 0;
 
+	glm::dvec3 v0{ 1, 0, -eps -1 + 1 / 2 };
+	glm::dvec3 v5{ 0, 0, -eps };
+
+	/*glm::dvec3 bl{ 0,-1, -eps };
+	glm::dvec3 br{ 1,-1, -eps-(1/2)};
+	glm::dvec3 tl{ 0, 1, -eps };
+	glm::dvec3 tr{ 1, 1, -eps-(1/2) };*/
+
+	glm::dvec3 bl{ -0.2, -0.2, -1 };
+	glm::dvec3 br{  0.2, -0.2, -1 };
+	glm::dvec3 tl{ -0.2,  0.2, -1 };
+	glm::dvec3 tr{  0.2,  0.2, -1 };
+
+
+	auto image = make_shared<ImageTexture>("images/wall.jpg");
+	auto image_material = make_shared<Lambertian>(glm::dvec3(1, 1, 1));
+	image_material->texture = image;
+	world.add(make_shared<Quad>(tl, tr, bl, br, image_material));
+	/*
+	*v6	  __v2__	 *v7
+	  _--=	    =--_
+	v1				v3
+	|				 |
+	|				 |
+	v0__		  __v4
+		==__v5__==
+	*v8		--		 *v9
+	*/
+
 	//add_cube(glm::dvec3(0.15, -0.5, -1.5), 0.2, lambertian_blue, world, glm::dvec3(0, 0, 0));
 	std::vector<glm::dvec3> v = { glm::dvec3(x + size, y, z + size), glm::dvec3(x - size, y, z + size), glm::dvec3(x + size, y, z - size), glm::dvec3(x - size, y, z - size) };
 	world.add(make_shared<Light>(v, glm::dvec3(x, y, z), 5.0, glm::dvec3{ 1, 1, 1 }));
-
+	
 	// Create_mark_room
-	add_mark_room(glm::dvec3(0, 0, -1), 1, walls_and_ceiling, l_orange, l_pink, l_turk, l_blue, l_green, l_sage);
+	add_mark_room(glm::dvec3(0, 0, -1), 1, walls_and_ceiling, l_orange, l_pink, mirror, l_turk, l_green, l_sage);
 }
 
 
